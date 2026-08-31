@@ -1,11 +1,10 @@
 import type Database from 'better-sqlite3';
 
-import { getDb } from '../db.js';
-import type { Order, OrderRow, OrderStatus } from '../types.js';
+import { getDb } from '../db';
+import type { Order, OrderRow, OrderStatus } from '../types';
 
 export function generateOrderId(): string {
-  const suffix = crypto.randomUUID().replace(/-/g, '').slice(0, 12);
-  return `ord_${suffix}`;
+  return `ord_${crypto.randomUUID().replaceAll('-', '')}`;
 }
 
 export function mapOrder(row: OrderRow): Order {
@@ -39,22 +38,6 @@ export function createOrderRecord(input: {
   `).run(input.id, input.sku, input.amount, input.currency, input.promocode, now, now);
 
   return getOrderById(input.id)!;
-}
-
-export function updateOrderStatus(
-  orderId: string,
-  status: OrderStatus,
-  keyCode: string | null = null,
-  db: Database.Database = getDb(),
-): boolean {
-  const now = new Date().toISOString();
-  const result = db.prepare(`
-    UPDATE orders
-    SET status = ?, key_code = COALESCE(?, key_code), updated_at = ?
-    WHERE id = ?
-  `).run(status, keyCode, now, orderId);
-
-  return result.changes > 0;
 }
 
 export function transitionOrderStatus(

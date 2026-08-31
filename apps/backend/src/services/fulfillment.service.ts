@@ -1,17 +1,18 @@
-import { getDb } from '../db.js';
-import { getFulfillmentKey, runImmediate } from './key-pool.service.js';
+import type { OrderStatus } from '../types';
+
+import { getDb } from '../db';
+import { getFulfillmentKey, runImmediate } from './key-pool.service';
 import {
   getOrderById,
   setOrderKey,
   transitionOrderStatus,
-} from './orders.service.js';
+} from './orders.service';
 import {
   callSupplierA,
   callSupplierB,
   SupplierFailureError,
   SupplierTimeoutError,
-} from './suppliers/index.js';
-import type { OrderStatus } from '../types.js';
+} from './suppliers/index';
 
 const deliveryInFlight = new Set<string>();
 

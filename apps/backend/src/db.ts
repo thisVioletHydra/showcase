@@ -3,8 +3,8 @@ import path from 'node:path';
 
 import Database from 'better-sqlite3';
 
-import { config } from '#config.js';
-import { initSchema } from '#schema.js';
+import { config } from '#config';
+import { initSchema } from '#schema';
 
 let db: Database.Database | null = null;
 

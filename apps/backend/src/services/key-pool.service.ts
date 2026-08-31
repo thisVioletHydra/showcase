@@ -1,6 +1,6 @@
 import type Database from 'better-sqlite3';
 
-import { getDb } from '../db.js';
+import { getDb } from '../db';
 
 export interface GrabKeyResult {
   code: string;

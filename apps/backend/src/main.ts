@@ -1,16 +1,17 @@
 import http from 'node:http';
 import process from 'node:process';
 
-import { config } from '#config.js';
-import { getDb, closeDb } from '#db.js';
-import { seedDatabase } from '#seed.js';
+import { config } from '#config';
+import { getDb, closeDb } from '#db';
+import { seedDatabase } from '#seed';
 import {
   parseQuery,
+  PayloadTooLargeError,
   readJsonBody,
   sendError,
-} from '#http/router.js';
-import { createAppRouter } from '#routes/index.js';
-import { processPendingWebhooks } from '#services/webhook.service.js';
+} from '#http/router';
+import { createAppRouter } from '#routes/index';
+import { processPendingWebhooks } from '#services/webhook.service';
 
 function applyCors(res: http.ServerResponse, origin: string | undefined): void {
   const allowed = config.corsOrigin === '*'
@@ -43,8 +44,8 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    const body = req.method === 'GET' || req.method === 'OPTIONS'
-      ? {}
+    const parsed = req.method === 'GET' || req.method === 'OPTIONS'
+      ? { json: {}, raw: '' }
       : await readJsonBody(req);
 
     const apiRequest = {
@@ -52,12 +53,21 @@ const server = http.createServer(async (req, res) => {
       path: url.pathname,
       params: matched.params,
       query: parseQuery(url),
-      body,
+      body: parsed.json,
+      rawBody: parsed.raw,
       headers: req.headers,
     };
 
     await matched.handler(apiRequest, res);
   } catch (error) {
+    if (!res.headersSent && error instanceof PayloadTooLargeError) {
+      sendError(res, 413, 'Payload too large');
+      return;
+    }
+    if (!res.headersSent && error instanceof SyntaxError) {
+      sendError(res, 400, 'Invalid JSON');
+      return;
+    }
     console.error('Request failed:', error);
     if (!res.headersSent) {
       sendError(res, 500, 'Internal server error');

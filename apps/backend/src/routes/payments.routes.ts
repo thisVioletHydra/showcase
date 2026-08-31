@@ -1,7 +1,7 @@
-import { simulatePayment } from '../services/payments.service.js';
-import { sendError, sendJson } from '../http/router.js';
-import type { ApiRequest } from '../http/router.js';
-import type { SimulatePaymentBody } from '../types.js';
+import { simulatePayment } from '../services/payments.service';
+import { sendError, sendJson } from '../http/router';
+import type { ApiRequest } from '../http/router';
+import type { SimulatePaymentBody } from '../types';
 import type { ServerResponse } from 'node:http';
 
 export async function postSimulatePayment(req: ApiRequest, res: ServerResponse): Promise<void> {

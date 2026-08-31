@@ -96,6 +96,8 @@ export interface Promocode {
 export interface CreateOrderBody {
   sku: string;
   promocode?: string;
+  /** Override product price (topup only). Billing currency is always catalog RUB. */
+  amount?: number;
 }
 
 export interface SimulatePaymentBody {

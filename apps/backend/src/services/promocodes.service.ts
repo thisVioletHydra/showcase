@@ -1,5 +1,5 @@
-import { getDb } from '../db.js';
-import type { Promocode, PromocodeType } from '../types.js';
+import { getDb } from '../db';
+import type { Promocode, PromocodeType } from '../types';
 
 export class PromocodeError extends Error {
   constructor(message: string) {
@@ -15,6 +15,15 @@ export function getPromocode(code: string): Promocode | undefined {
     FROM promocodes
     WHERE code = ?
   `).get(code) as Promocode | undefined;
+}
+
+export function listPromocodes(): Promocode[] {
+  const db = getDb();
+  return db.prepare(`
+    SELECT code, type, value, currency, max_uses, used_count
+    FROM promocodes
+    ORDER BY code
+  `).all() as Promocode[];
 }
 
 export function calculateDiscountedPrice(
@@ -36,7 +45,10 @@ export function calculateDiscountedPrice(
 
 export function applyPromocode(orderId: string, code: string): Promocode {
   const db = getDb();
-  db.prepare('BEGIN IMMEDIATE').run();
+  const startedHere = !db.inTransaction;
+  if (startedHere) {
+    db.prepare('BEGIN IMMEDIATE').run();
+  }
 
   try {
     const promo = getPromocode(code);
@@ -59,10 +71,14 @@ export function applyPromocode(orderId: string, code: string): Promocode {
       VALUES (?, ?)
     `).run(code, orderId);
 
-    db.prepare('COMMIT').run();
+    if (startedHere) {
+      db.prepare('COMMIT').run();
+    }
     return getPromocode(code)!;
   } catch (error) {
-    db.prepare('ROLLBACK').run();
+    if (startedHere) {
+      db.prepare('ROLLBACK').run();
+    }
     throw error;
   }
 }

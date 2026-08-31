@@ -3,8 +3,8 @@ import path from 'node:path';
 
 import type Database from 'better-sqlite3';
 
-import { config } from './config.js';
-import type { Product, Promocode } from './types.js';
+import { config } from './config';
+import type { Product, Promocode } from './types';
 
 interface ProductsSpec {
   products: Product[];

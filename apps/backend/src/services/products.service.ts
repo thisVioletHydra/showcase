@@ -1,7 +1,7 @@
 import type Database from 'better-sqlite3';
 
-import { getDb } from '../db.js';
-import type { Product } from '../types.js';
+import { getDb } from '../db';
+import type { Product } from '../types';
 
 export function listProducts(): Product[] {
   const db = getDb();

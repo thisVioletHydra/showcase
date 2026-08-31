@@ -3,20 +3,21 @@
   "private": true,
   "type": "module",
   "imports": {
-    "#config.js": "./src/config.js",
-    "#db.js": "./src/db.js",
-    "#schema.js": "./src/schema.js",
-    "#seed.js": "./src/seed.js",
-    "#types.js": "./src/types.js",
-    "#http/*.js": "./src/http/*.js",
-    "#routes/*.js": "./src/routes/*.js",
-    "#services/*.js": "./src/services/*.js"
+    "#config": "./src/config.ts",
+    "#db": "./src/db.ts",
+    "#schema": "./src/schema.ts",
+    "#seed": "./src/seed.ts",
+    "#types": "./src/types.ts",
+    "#http/*": "./src/http/*.ts",
+    "#routes/*": "./src/routes/*.ts",
+    "#services/*": "./src/services/*.ts"
   },
   "scripts": {
-    "dev": "tsx watch src/main.ts",
+    "dev": "node ../../scripts/dev-backend.mjs",
     "build": "tsc -p tsconfig.json",
     "start": "tsx src/main.ts",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "tsx --import ./test/preload.ts --test test/**/*.test.ts"
   },
   "dependencies": {
     "better-sqlite3": "^11.10.0"

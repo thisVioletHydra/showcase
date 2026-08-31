@@ -1,0 +1,303 @@
+.header {
+  position: relative;
+  z-index: 40;
+  height: 80px;
+  background: #fff;
+  border-bottom: 1px solid #f2f4f7;
+}
+
+.inner {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo {
+  flex-shrink: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #000;
+}
+
+.toolbar {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 77px;
+}
+
+.catalogBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #000;
+  color: #fff;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 17px;
+  cursor: pointer;
+}
+
+.catalogBtnActive {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+.searchWrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 2px;
+  border-radius: 10px;
+  background: #000;
+}
+
+.searchDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  max-height: 360px;
+  overflow: auto;
+  padding: 8px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 16px 40px rgba(20, 40, 80, 0.16);
+  border: 1px solid #eef1f5;
+}
+
+.searchList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.searchItem {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.searchItem:hover {
+  background: #f4f5f7;
+}
+
+.searchThumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #eef1f5;
+}
+
+.searchItemBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.searchItemName {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.searchItemSku {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8a94a6;
+}
+
+.searchItemPrice {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4c9a2a;
+  white-space: nowrap;
+}
+
+.searchEmpty {
+  margin: 0;
+  padding: 18px 12px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8a94a6;
+}
+
+.searchField {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 12px 0 16px;
+  border-radius: 8px 0 0 8px;
+  background: transparent;
+  color: #363636;
+  outline: none;
+  box-shadow: none;
+}
+
+.searchInput:focus,
+.searchInput:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.searchInput::placeholder {
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 15px;
+  letter-spacing: -0.03em;
+  color: #76829b;
+}
+
+.heartBtn {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-right: 4px;
+  border-radius: 6px;
+  background: #eff1f5;
+  cursor: pointer;
+}
+
+.searchBtn {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 40px;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.profileBtn {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #f2f4f7;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+/* планшет: одна линия, плотнее */
+@media (max-width: 1023px) {
+  .toolbar {
+    gap: 12px;
+  }
+
+  .logo {
+    font-size: 24px;
+  }
+}
+
+/* телефон: лого + каталог + профиль / поиск снизу */
+@media (max-width: 767px) {
+  .header {
+    height: auto;
+  }
+
+  .inner {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    grid-template-areas:
+      'logo . catalog profile'
+      'search search search search';
+    align-items: center;
+    gap: 10px 8px;
+    height: auto;
+    padding: 12px 0;
+  }
+
+  .logo {
+    grid-area: logo;
+    width: max-content;
+    justify-self: start;
+    font-size: 22px;
+  }
+
+  .toolbar {
+    display: contents;
+  }
+
+  .catalogBtn {
+    grid-area: catalog;
+    height: 40px;
+    padding: 0 12px;
+    gap: 6px;
+  }
+
+  .catalogBtn span {
+    display: none;
+  }
+
+  .searchWrap {
+    grid-area: search;
+    width: 100%;
+    height: 40px;
+  }
+
+  .searchField {
+    height: 36px;
+  }
+
+  .searchBtn {
+    width: 40px;
+    height: 36px;
+  }
+
+  .profileBtn {
+    grid-area: profile;
+    width: 40px;
+    height: 40px;
+  }
+
+  .heartBtn {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (min-width: 400px) and (max-width: 767px) {
+  .catalogBtn span {
+    display: inline;
+  }
+}

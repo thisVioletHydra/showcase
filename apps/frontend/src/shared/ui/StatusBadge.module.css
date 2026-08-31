@@ -1,0 +1,57 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.pending {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.14);
+}
+
+.progress {
+  color: #0f766e;
+  background: rgba(20, 184, 166, 0.14);
+}
+
+.progress .dot {
+  animation: pulseDot 1.2s ease-in-out infinite;
+}
+
+.success {
+  color: #3f7d22;
+  background: rgba(110, 184, 63, 0.16);
+}
+
+.danger {
+  color: #b91c1c;
+  background: rgba(220, 38, 38, 0.12);
+}
+
+@keyframes pulseDot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+}

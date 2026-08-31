@@ -1,4 +1,4 @@
-import type { SupplierConfig } from '../../types.js';
+import type { SupplierConfig } from '../../types';
 
 const supplierAConfig: SupplierConfig = {
   errorRate: 0.2,
@@ -28,7 +28,7 @@ export function setSupplierConfig(
   if (patch.timeoutRate !== undefined) {
     target.timeoutRate = clampRate(patch.timeoutRate);
   }
-  if (patch.timeoutMs !== undefined) {
+  if (patch.timeoutMs !== undefined && Number.isFinite(patch.timeoutMs)) {
     target.timeoutMs = Math.max(100, patch.timeoutMs);
   }
 
@@ -46,7 +46,7 @@ export function setAllSupplierConfig(patch: Partial<SupplierConfig>): {
 }
 
 function clampRate(value: number): number {
-  if (value < 0) {
+  if (!Number.isFinite(value) || value < 0) {
     return 0;
   }
   if (value > 1) {

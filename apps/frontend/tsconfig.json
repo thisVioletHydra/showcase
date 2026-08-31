@@ -11,15 +11,7 @@
     "allowImportingTsExtensions": true,
     "useDefineForClassFields": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "@/api/*": ["./src/api/*"],
-      "@/components/*": ["./src/components/*"],
-      "@/data/*": ["./src/data/*"],
-      "@/hooks/*": ["./src/hooks/*"],
-      "@/pages/*": ["./src/pages/*"],
-      "@/styles/*": ["./src/styles/*"],
-      "@/types": ["./src/types/index.ts"],
-      "@/types/*": ["./src/types/*"]
+      "#/*": ["./src/*"]
     }
   },
   "include": ["src", "vite.config.ts", "vite-env.d.ts"]

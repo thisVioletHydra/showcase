@@ -6,7 +6,22 @@ export interface ApiRequest {
   params: Record<string, string>;
   query: Record<string, string>;
   body: unknown;
+  rawBody: string;
   headers: IncomingMessage['headers'];
+}
+
+export const MAX_JSON_BODY_BYTES = 64 * 1024;
+
+export class PayloadTooLargeError extends Error {
+  constructor() {
+    super('Payload too large');
+    this.name = 'PayloadTooLargeError';
+  }
+}
+
+export interface JsonBody {
+  json: unknown;
+  raw: string;
 }
 
 export type RouteHandler = (req: ApiRequest, res: ServerResponse) => void | Promise<void>;
@@ -18,23 +33,41 @@ export interface RouteDefinition {
   handler: RouteHandler;
 }
 
-export function readJsonBody(req: IncomingMessage): Promise<unknown> {
+export function readJsonBody(req: IncomingMessage): Promise<JsonBody> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
+    let size = 0;
+    let rejected = false;
 
     req.on('data', (chunk: Buffer) => {
+      if (rejected) {
+        return;
+      }
+
+      size += chunk.length;
+      if (size > MAX_JSON_BODY_BYTES) {
+        rejected = true;
+        req.destroy();
+        reject(new PayloadTooLargeError());
+        return;
+      }
+
       chunks.push(chunk);
     });
 
     req.on('end', () => {
+      if (rejected) {
+        return;
+      }
+
       if (chunks.length === 0) {
-        resolve({});
+        resolve({ json: {}, raw: '' });
         return;
       }
 
       try {
         const raw = Buffer.concat(chunks).toString('utf8');
-        resolve(JSON.parse(raw));
+        resolve({ json: JSON.parse(raw), raw });
       } catch (error) {
         reject(error);
       }

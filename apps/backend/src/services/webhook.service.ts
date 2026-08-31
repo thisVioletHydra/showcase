@@ -1,7 +1,7 @@
-import { getDb } from '../db.js';
-import { processPaidOrder } from './fulfillment.service.js';
-import { getOrderById, transitionOrderStatus } from './orders.service.js';
-import type { PaymentWebhookPayload } from '../types.js';
+import { getDb } from '../db';
+import { processPaidOrder } from './fulfillment.service';
+import { getOrderById, transitionOrderStatus } from './orders.service';
+import type { PaymentWebhookPayload } from '../types';
 
 export function storeWebhookInbox(payload: PaymentWebhookPayload): void {
   const db = getDb();
@@ -32,8 +32,23 @@ export function markInboxProcessed(eventId: string): void {
   `).run(eventId);
 }
 
+/**
+ * Inbox-first: if order is missing, keep event in inbox only.
+ * Claim payment_events only when we can apply — otherwise early webhooks
+ * would be "eaten" on retry without ever paying the order.
+ */
 export function processPaymentWebhook(payload: PaymentWebhookPayload): void {
   storeWebhookInbox(payload);
+
+  const order = getOrderById(payload.order_id);
+  if (!order) {
+    return;
+  }
+
+  if (!amountsMatch(order.amount, order.currency, payload)) {
+    markInboxProcessed(payload.event_id);
+    return;
+  }
 
   const isNewEvent = recordPaymentEvent(payload);
   if (!isNewEvent) {
@@ -41,13 +56,20 @@ export function processPaymentWebhook(payload: PaymentWebhookPayload): void {
     return;
   }
 
-  const order = getOrderById(payload.order_id);
-  if (!order) {
-    return;
-  }
-
   applyPaymentToOrder(payload);
   markInboxProcessed(payload.event_id);
+}
+
+function amountsMatch(
+  orderAmount: number,
+  orderCurrency: string,
+  payload: PaymentWebhookPayload,
+): boolean {
+  if (payload.currency !== orderCurrency) {
+    return false;
+  }
+
+  return Number(payload.amount) === Number(orderAmount);
 }
 
 function applyPaymentToOrder(payload: PaymentWebhookPayload): void {
@@ -107,6 +129,5 @@ export function processPendingWebhooks(): number {
 }
 
 export function generateEventId(): string {
-  const suffix = crypto.randomUUID().replace(/-/g, '').slice(0, 12);
-  return `evt_${suffix}`;
+  return `evt_${crypto.randomUUID().replaceAll('-', '')}`;
 }

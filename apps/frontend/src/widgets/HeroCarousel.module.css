@@ -1,0 +1,186 @@
+.section {
+  padding-top: 24px;
+}
+
+.carousel {
+  position: relative;
+  height: 263px;
+  border-radius: 12px;
+  container-type: inline-size;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 12px;
+  background: var(--hero-carousel-stage);
+  overflow: hidden;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.slideActive {
+  opacity: 1;
+}
+
+.slideImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slideImageContain {
+  object-fit: contain;
+  object-position: center;
+  padding: 12px 24px;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+.controlsShell {
+  --control-shell-w: 98px;
+  --control-shell-h: 48px;
+  --control-ink: 12px;
+  --control-pad: 8px;
+  position: absolute;
+  z-index: 2;
+  box-sizing: border-box;
+  width: var(--control-shell-w);
+  height: var(--control-shell-h);
+  padding: 0 0 var(--control-pad) var(--control-pad);
+  border-radius: 0 0 0 22px;
+  background: var(--bg-surface);
+  container-type: size;
+  translate: calc(100cqi - 100%) 0;
+}
+
+.cornerTl,
+.cornerBr {
+  position: absolute;
+  z-index: 1;
+  width: var(--control-ink);
+  height: var(--control-ink);
+  background: var(--bg-surface);
+  pointer-events: none;
+  mask-image: radial-gradient(
+    circle at 100% 100%,
+    transparent 11.5px,
+    #000 12px
+  );
+  rotate: 90deg;
+  translate: 0.3px -0.3px;
+}
+
+.cornerTl {
+  top: 0;
+  right: 100%; 
+}
+
+.cornerBr {
+  top: 100%;
+  right: 0; 
+}
+
+.controls {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid #E5E9F1;
+  overflow: hidden;
+}
+
+.controlBtn {
+  display: grid;
+  flex: 1 1 50%;
+  place-items: center;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  color: #000;
+  cursor: pointer;
+}
+
+.controlBtnPrev {
+  border-radius: 20px 0 0 20px;
+}
+
+.controlBtnNext {
+  border-radius: 0 20px 20px 0;
+}
+.controlBtnPrev:hover,
+.controlBtnNext:hover {
+  background-color: #75829b33;
+}
+
+.controlBtn svg {
+  fill: currentColor;
+  color: inherit;
+  pointer-events: none;
+}
+
+.controlBtn:focus,
+.controlBtn:focus-visible {
+  outline: none;
+}
+
+.arrowMirrored {
+  transform: scaleX(-1);
+}
+
+.sprite {
+  display: none;
+}
+
+.dotsShell {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2;
+  padding: 5px 7px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  column-gap: 4px;
+}
+
+.dot {
+  appearance: none;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 4px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 2px;
+  background-color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+}
+
+.dotActive {
+  background-color: #fff;
+}
+
+.dot:focus,
+.dot:focus-visible {
+  outline: none;
+}

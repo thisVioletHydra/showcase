@@ -1,13 +1,13 @@
-import { getDb } from '../../db.js';
-import { grabKeyForOrder } from '../key-pool.service.js';
+import { getDb } from '../../db';
+import { grabKeyForOrder } from '../key-pool.service';
 import {
   delay,
   getSupplierConfig,
   rollSupplierBehavior,
   SupplierFailureError,
   SupplierTimeoutError,
-} from './config.js';
-import type { SupplierIssueRequest, SupplierIssueResponse } from '../../types.js';
+} from './config';
+import type { SupplierIssueRequest, SupplierIssueResponse } from '../../types';
 
 function getStoredIssue(requestId: string) {
   const db = getDb();
@@ -55,9 +55,9 @@ async function issueFromSupplier(
     };
   }
 
-  if (stored?.status === 'error') {
-    return { status: 'error', reason: 'out_of_stock' };
-  }
+  // Do not short-circuit on prior out_of_stock/error — admin recovery
+  // after refill must be able to grab a key with the same request_id.
+  // Success (ok+code) stays sticky for timeout idempotency.
 
   const config = getSupplierConfig(configKey);
   const behavior = rollSupplierBehavior(config);
@@ -88,7 +88,7 @@ async function issueFromSupplier(
           requestId: request.request_id,
           orderId: request.order_id,
           supplier: supplierName,
-          status: 'error',
+          status: 'out_of_stock',
         });
         db.prepare('COMMIT').run();
         return { status: 'error', reason: 'out_of_stock' };

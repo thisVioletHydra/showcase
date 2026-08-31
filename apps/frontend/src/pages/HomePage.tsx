@@ -1,9 +1,9 @@
-import { Header } from '@/components/Header';
-import { HeroCarousel } from '@/components/HeroCarousel';
-import { ProductSection } from '@/components/ProductSection';
-import { ReviewsSection } from '@/components/ReviewsSection';
-import { ServicesSteamCard } from '@/components/ServicesSteamCard';
-import { SiteFooter } from '@/components/SiteFooter';
+import { Header } from '#/widgets/Header';
+import { HeroCarousel } from '#/widgets/HeroCarousel';
+import { ProductSection } from '#/widgets/ProductSection';
+import { ReviewsSection } from '#/widgets/ReviewsSection';
+import { ServicesSteamCard } from '#/widgets/ServicesSteamCard';
+import { SiteFooter } from '#/widgets/SiteFooter';
 
 export function HomePage() {
   return (
@@ -14,9 +14,9 @@ export function HomePage() {
           <HeroCarousel />
           <ServicesSteamCard />
           <ProductSection title="Популярные товары" showFilters sliceStart={0} sliceEnd={5} />
-          <ReviewsSection />
           <ProductSection title="Рекомендованные товары" showAllLink sliceStart={0} sliceEnd={5} />
           <ProductSection title="Другие товары" showAllLink sliceStart={5} sliceEnd={10} />
+          <ReviewsSection />
         </main>
         <SiteFooter />
       </div>

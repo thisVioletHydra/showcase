@@ -1,13 +1,25 @@
 #!/usr/bin/env node
 
+import crypto from 'node:crypto';
+
 const API_URL = process.env.API_URL ?? 'http://127.0.0.1:3000';
 const PARALLEL = Number(process.env.PARALLEL ?? 50);
 const SKU = process.env.SKU ?? 'KEY-CS2-PRIME';
+const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET ?? 'dev-webhook-secret';
+
+function signWebhook(raw) {
+  return crypto.createHmac('sha256', WEBHOOK_SECRET).update(raw).digest('hex');
+}
 
 async function request(path, options = {}) {
+  const headers = { 'Content-Type': 'application/json', ...options.headers };
+  if (path === '/webhook/payment' && typeof options.body === 'string') {
+    headers['X-Webhook-Signature'] = signWebhook(options.body);
+  }
+
   const response = await fetch(`${API_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...options.headers },
     ...options,
+    headers,
   });
   const text = await response.text();
   let body = null;

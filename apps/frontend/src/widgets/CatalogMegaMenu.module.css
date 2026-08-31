@@ -1,0 +1,273 @@
+.panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 50;
+  width: 100%;
+  background: #fff;
+  border-top: 1px solid #f1f2f5;
+  box-shadow: 0 24px 48px rgba(20, 40, 80, 0.08);
+}
+
+.shell {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  width: min(var(--container), calc(100% - 80px));
+  min-height: 585px;
+  margin: 0 auto;
+}
+
+.sidebar {
+  padding: 16px 0;
+  background: #fff;
+  border-right: 1px solid #f1f2f5;
+}
+
+.sidebarList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebarItem {
+  width: 100%;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 24px;
+  font-family: var(--font-catalog);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 17px;
+  letter-spacing: 0;
+  color: #363636;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebarItem span {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebarItemActive {
+  background: #f4f5f7;
+  color: #16181d;
+}
+
+.sidebarItem:hover {
+  background: #f4f5f7;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding: 32px 32px 40px;
+  overflow: auto;
+  background: #fff;
+}
+
+.platforms {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 32px;
+}
+
+.column {
+  min-width: 0;
+}
+
+.columnTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 16px;
+  padding: 0;
+  font-family: var(--font-catalog);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 24px;
+  letter-spacing: 0;
+  color: #16181d;
+  text-align: left;
+  cursor: pointer;
+}
+
+.linkList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.link {
+  display: block;
+  font-family: var(--font-catalog);
+  font-size: 13.5px;
+  font-weight: 300;
+  line-height: 20px;
+  letter-spacing: 0;
+  color: #363636;
+  text-align: left;
+}
+
+.linkMultiline {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  font-family: var(--font-catalog);
+  font-size: 13.5px;
+  font-weight: 300;
+  line-height: 20px;
+  letter-spacing: 0;
+  color: #363636;
+  text-align: left;
+}
+
+.link:hover,
+.linkMultiline:hover {
+  color: #16181d;
+}
+
+.collections {
+  width: min(100%, calc((100% - 128px) / 5));
+}
+
+.stub {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 420px;
+  border-radius: 12px;
+  background: #fdfdfd;
+  border: 1px solid #f1f1f1;
+}
+
+.stubCat {
+  display: block;
+  width: min(280px, 72%);
+  height: auto;
+  object-fit: contain;
+}
+
+.chevron {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  opacity: 0.4;
+  color: currentColor;
+}
+
+/* планшет: сайдбар + контент рядом, 3 колонки платформ */
+@media (max-width: 1023px) {
+  .shell {
+    grid-template-columns: 220px 1fr;
+    width: min(var(--container), calc(100% - 48px));
+    min-height: 460px;
+  }
+
+  .sidebarItem {
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+
+  .main {
+    padding: 24px 20px 28px;
+    gap: 28px;
+  }
+
+  .platforms {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px 24px;
+  }
+
+  .collections {
+    width: min(100%, calc((100% - 48px) / 3));
+  }
+
+  .stub {
+    min-height: 320px;
+  }
+}
+
+/* телефон: категории сверху чипами, контент снизу */
+@media (max-width: 767px) {
+  .panel {
+    max-height: min(70vh, 640px);
+    overflow: auto;
+  }
+
+  .shell {
+    grid-template-columns: 1fr;
+    width: min(var(--container), calc(100% - 32px));
+    min-height: 0;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 10px 0 8px;
+    border-right: none;
+    border-bottom: 1px solid #f1f2f5;
+    background: #fff;
+  }
+
+  .sidebarList {
+    flex-direction: row;
+    gap: 6px;
+    padding: 0 4px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .sidebarList::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sidebarItem {
+    width: auto;
+    height: 36px;
+    flex: 0 0 auto;
+    padding: 8px 12px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .sidebarItem .chevron {
+    display: none;
+  }
+
+  .main {
+    padding: 16px 4px 24px;
+    gap: 24px;
+  }
+
+  .platforms {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 16px;
+  }
+
+  .columnTitle {
+    margin-bottom: 12px;
+    font-size: 15px;
+  }
+
+  .collections {
+    width: 100%;
+  }
+
+  .stub {
+    min-height: 220px;
+  }
+}

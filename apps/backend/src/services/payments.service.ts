@@ -1,17 +1,14 @@
-import http from 'node:http';
-
-import { config } from '../config.js';
-import { getOrderById } from './orders.service.js';
+import { getOrderById } from './orders.service';
 import {
   generateEventId,
   processPaymentWebhook,
-} from './webhook.service.js';
-import type { PaymentWebhookPayload } from '../types.js';
+} from './webhook.service';
+import type { PaymentWebhookPayload } from '../types';
 
-export async function simulatePayment(orderId: string, success: boolean): Promise<{
+export function simulatePayment(orderId: string, success: boolean): {
   event_id: string;
   webhook_status: number;
-}> {
+} {
   const order = getOrderById(orderId);
   if (!order) {
     throw new Error('Order not found');
@@ -26,36 +23,8 @@ export async function simulatePayment(orderId: string, success: boolean): Promis
     created_at: new Date().toISOString(),
   };
 
-  const webhookStatus = await postWebhook(payload);
-  return { event_id: payload.event_id, webhook_status: webhookStatus };
-}
-
-function postWebhook(payload: PaymentWebhookPayload): Promise<number> {
-  return new Promise((resolve, reject) => {
-    const body = JSON.stringify(payload);
-    const request = http.request(
-      {
-        hostname: '127.0.0.1',
-        port: config.port,
-        path: '/webhook/payment',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(body),
-        },
-      },
-      (response) => {
-        response.resume();
-        response.on('end', () => {
-          resolve(response.statusCode ?? 500);
-        });
-      },
-    );
-
-    request.on('error', reject);
-    request.write(body);
-    request.end();
-  });
+  processPaymentWebhook(payload);
+  return { event_id: payload.event_id, webhook_status: 200 };
 }
 
 export function handlePaymentWebhookDirect(payload: PaymentWebhookPayload): void {

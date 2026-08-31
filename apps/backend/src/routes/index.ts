@@ -1,14 +1,16 @@
-import { Router, sendJson } from '../http/router.js';
-import { getProducts } from './products.routes.js';
-import { getOrder, postOrder, postOrderPromocode } from './orders.routes.js';
-import { postSimulatePayment } from './payments.routes.js';
-import { postPaymentWebhook } from './webhook.routes.js';
+import { Router, sendJson } from '../http/router';
+import { getProducts } from './products.routes';
+import { getOrder, postOrder, postOrderPromocode } from './orders.routes';
+import { postSimulatePayment } from './payments.routes';
+import { postPaymentWebhook } from './webhook.routes';
 import {
   getAdminOrders,
+  getAdminPromocodes,
   postAdminKeys,
+  postAdminRestart,
   postRetryDelivery,
   postSupplierConfig,
-} from './admin.routes.js';
+} from './admin.routes';
 
 export function createAppRouter(): Router {
   const router = new Router();
@@ -24,6 +26,8 @@ export function createAppRouter(): Router {
   router.post('/api/admin/orders/:id/retry-delivery', postRetryDelivery);
   router.post('/api/admin/keys', postAdminKeys);
   router.post('/api/admin/suppliers/config', postSupplierConfig);
+  router.get('/api/admin/promocodes', getAdminPromocodes);
+  router.post('/api/admin/debug/restart', postAdminRestart);
 
   router.get('/health', (_req, res) => {
     sendJson(res, 200, { ok: true });

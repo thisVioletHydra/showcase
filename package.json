@@ -9,7 +9,9 @@
     "typecheck": "pnpm -r run typecheck",
     "build": "pnpm --filter backend build && pnpm --filter frontend build",
     "race:webhook": "node scripts/race-webhook.mjs",
-    "race:promo": "node scripts/race-promo.mjs"
+    "race:promo": "node scripts/race-promo.mjs",
+    "race:early": "node scripts/race-early-webhook.mjs",
+    "test": "pnpm --filter backend test"
   },
   "engines": {
     "node": ">=24"
