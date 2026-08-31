@@ -1,0 +1,23 @@
+/* Figma Dev Mode dump — megamenu + header reference (1920px frame)
+ * Do not import directly; semantic layout lives in Header.module.css / CatalogMegaMenu.module.css
+ */
+
+/* megamenu shell */
+/* bg: #F4F5F7; white strip opacity 0.9; header 80px #FFF border #F2F4F7 */
+
+/* catalog_button: flex row, gap 8px, padding 12px 0, bg #000, radius 10px, Montserrat 600 14px white */
+/* search: black wrap radius 10 → white field radius 8, placeholder Montserrat 600 12px #76829B letter-spacing -0.03em */
+/* heart: #EFF1F5 radius 6px padding 9px 9px 10px, icon 14×13 #76829B */
+/* profile: 44×44 #F2F4F7 radius 10px */
+
+/* panel: full width, top 80px, height ~585px, bg #FFF, border-top #F1F2F5 */
+/* inner: 1200px — sidebar 320px + main 880px */
+/* sidebar: padding 16px 0, items 44px, padding 12px 24px, gap 4px, active bg #F4F5F7 */
+/* sidebar font: Gilroy 500 14px — active #16181D, default #363636, chevron 18px opacity 0.4 */
+
+/* main: padding 32px 32px 40px, gap 40px */
+/* columns: 5 × ~137.6px, gap 32px */
+/* titles: Gilroy 700 16px/24px #16181D + chevron gap 4px */
+/* links: Gilroy 500 13.5px/20px #363636, gap 12px */
+/* multiline links: flex column gap 3px (Коллекционные/карточки, Популярные/издатели) */
+/* Подборки: below platforms, first column width only */

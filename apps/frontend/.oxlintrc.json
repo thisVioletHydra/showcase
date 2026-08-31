@@ -1,0 +1,55 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "typescript",
+    "import",
+    "unicorn"
+  ],
+  "jsPlugins": [
+    "@showcase/oxlint-rules"
+  ],
+  "rules": {
+    "import/newline-after-import": "warn",
+    "import/consistent-type-specifier-style": [
+      "error",
+      "prefer-top-level"
+    ],
+    "typescript/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "separate-type-imports"
+      }
+    ],
+    "typescript/no-floating-promises": "off",
+    "showcase/no-floating-promise": "error",
+    "eqeqeq": [
+      "error",
+      "always"
+    ],
+    "no-negated-condition": "warn",
+    "id-length": "off",
+    "showcase/id-length": [
+      "error",
+      {
+        "min": 2,
+        "exceptions": ["i", "j", "f", "_", "t"],
+        "exceptionPatterns": ["^[A-Z]$"],
+        "properties": "never"
+      }
+    ],
+    "showcase/consistent-block-indent": "warn",
+    "showcase/consistent-call-arguments": "warn",
+    "showcase/consistent-chain-layout": "warn",
+    "showcase/consistent-condition-spacing": "warn",
+    "showcase/consistent-object-layout": "warn",
+    "showcase/consistent-parameter-layout": "warn",
+    "showcase/consistent-property-indent": "warn",
+    "showcase/consistent-ternary-layout": "warn",
+    "showcase/no-bang-condition": "warn",
+    "showcase/no-blank-lines-in-arrow-expression": "warn",
+    "showcase/no-blank-lines-in-chain": "warn",
+    "showcase/padding-line-before-decorator": "warn",
+    "showcase/import-layout": "warn"
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "typescript",
+    "import",
+    "unicorn"
+  ],
+  "jsPlugins": [
+    "@showcase/oxlint-rules"
+  ],
+  "rules": {
+    "import/newline-after-import": "warn",
+    "import/consistent-type-specifier-style": [
+      "error",
+      "prefer-top-level"
+    ],
+    "typescript/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "separate-type-imports"
+      }
+    ],
+    "typescript/no-floating-promises": "off",
+    "selfskills/no-floating-promise": "error",
+    "eqeqeq": [
+      "error",
+      "always"
+    ],
+    "no-negated-condition": "warn",
+    "id-length": "off",
+    "selfskills/id-length": [
+      "error",
+      {
+        "min": 2,
+        "exceptions": ["i", "j", "f", "_", "t"],
+        "exceptionPatterns": ["^[A-Z]$"],
+        "properties": "never"
+      }
+    ],
+    "selfskills/consistent-block-indent": "warn",
+    "selfskills/consistent-call-arguments": "warn",
+    "selfskills/consistent-chain-layout": "warn",
+    "selfskills/consistent-condition-spacing": "warn",
+    "selfskills/consistent-object-layout": "warn",
+    "selfskills/consistent-parameter-layout": "warn",
+    "selfskills/consistent-property-indent": "warn",
+    "selfskills/consistent-ternary-layout": "warn",
+    "selfskills/no-bang-condition": "warn",
+    "selfskills/no-blank-lines-in-arrow-expression": "warn",
+    "selfskills/no-blank-lines-in-chain": "warn",
+    "selfskills/padding-line-before-decorator": "warn",
+    "selfskills/import-layout": "warn",
+    "selfskills/no-node-named-import": "error",
+    "selfskills/prefer-fs-promises": "warn",
+    "selfskills/prefer-node-default-name": "error",
+    "selfskills/prefer-object-arrow-method": "warn",
+    "selfskills/prefer-process-import": "error",
+    "unicorn/prefer-node-protocol": "error",
+    "unicorn/import-style": [
+      "error",
+      {
+        "extendDefaultStyles": false,
+        "checkDynamicImport": true,
+        "checkRequire": true,
+        "styles": {
+          "node:assert": { "default": true, "named": false, "namespace": false },
+          "node:assert/strict": { "default": true, "named": false, "namespace": false },
+          "node:async_hooks": { "default": true, "named": false, "namespace": false },
+          "node:buffer": { "default": true, "named": false, "namespace": false },
+          "node:child_process": { "default": true, "named": false, "namespace": false },
+          "node:cluster": { "default": true, "named": false, "namespace": false },
+          "node:console": { "default": true, "named": false, "namespace": false },
+          "node:constants": { "default": true, "named": false, "namespace": false },
+          "node:crypto": { "default": true, "named": false, "namespace": false },
+          "node:dgram": { "default": true, "named": false, "namespace": false },
+          "node:diagnostics_channel": { "default": true, "named": false, "namespace": false },
+          "node:dns": { "default": true, "named": false, "namespace": false },
+          "node:domain": { "default": true, "named": false, "namespace": false },
+          "node:events": { "default": true, "named": false, "namespace": false },
+          "node:fs": { "default": true, "named": false, "namespace": false },
+          "node:fs/promises": { "default": true, "named": false, "namespace": false },
+          "node:http": { "default": true, "named": false, "namespace": false },
+          "node:http2": { "default": true, "named": false, "namespace": false },
+          "node:https": { "default": true, "named": false, "namespace": false },
+          "node:inspector": { "default": true, "named": false, "namespace": false },
+          "node:module": { "default": true, "named": false, "namespace": false },
+          "node:net": { "default": true, "named": false, "namespace": false },
+          "node:os": { "default": true, "named": false, "namespace": false },
+          "node:path": { "default": true, "named": false, "namespace": false },
+          "node:path/posix": { "default": true, "named": false, "namespace": false },
+          "node:path/win32": { "default": true, "named": false, "namespace": false },
+          "node:perf_hooks": { "default": true, "named": false, "namespace": false },
+          "node:process": { "default": true, "named": false, "namespace": false },
+          "node:punycode": { "default": true, "named": false, "namespace": false },
+          "node:querystring": { "default": true, "named": false, "namespace": false },
+          "node:readline": { "default": true, "named": false, "namespace": false },
+          "node:readline/promises": { "default": true, "named": false, "namespace": false },
+          "node:repl": { "default": true, "named": false, "namespace": false },
+          "node:stream": { "default": true, "named": false, "namespace": false },
+          "node:stream/consumers": { "default": true, "named": false, "namespace": false },
+          "node:stream/promises": { "default": true, "named": false, "namespace": false },
+          "node:stream/web": { "default": true, "named": false, "namespace": false },
+          "node:string_decoder": { "default": true, "named": false, "namespace": false },
+          "node:sys": { "default": true, "named": false, "namespace": false },
+          "node:timers": { "default": true, "named": false, "namespace": false },
+          "node:timers/promises": { "default": true, "named": false, "namespace": false },
+          "node:tls": { "default": true, "named": false, "namespace": false },
+          "node:trace_events": { "default": true, "named": false, "namespace": false },
+          "node:tty": { "default": true, "named": false, "namespace": false },
+          "node:url": { "default": true, "named": false, "namespace": false },
+          "node:util": { "default": true, "named": false, "namespace": false },
+          "node:util/types": { "default": true, "named": false, "namespace": false },
+          "node:v8": { "default": true, "named": false, "namespace": false },
+          "node:vm": { "default": true, "named": false, "namespace": false },
+          "node:wasi": { "default": true, "named": false, "namespace": false },
+          "node:worker_threads": { "default": true, "named": false, "namespace": false },
+          "node:zlib": { "default": true, "named": false, "namespace": false }
+        }
+      }
+    ]
+  }
+}

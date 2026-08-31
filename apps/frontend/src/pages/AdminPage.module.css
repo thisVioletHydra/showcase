@@ -1,0 +1,124 @@
+.page {
+  padding-block: 32px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.back {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.card {
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.cardHead button,
+.keysForm button {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-black);
+  color: #fff;
+  font-weight: 600;
+}
+
+.orderList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.orderItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.orderId {
+  margin: 0 0 4px;
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.orderMeta {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.retryBtn {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-muted-2);
+  font-weight: 600;
+}
+
+.keysForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.keysForm textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-divider);
+  border-radius: var(--radius-sm);
+  background: var(--bg-muted);
+  resize: vertical;
+}
+
+.error {
+  color: #c0392b;
+}
+
+.message {
+  color: var(--text-price);
+  font-weight: 600;
+}
+
+.empty {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+  .orderItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

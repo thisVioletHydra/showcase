@@ -1,0 +1,33 @@
+{
+  "name": "backend",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#config.js": "./src/config.js",
+    "#db.js": "./src/db.js",
+    "#schema.js": "./src/schema.js",
+    "#seed.js": "./src/seed.js",
+    "#types.js": "./src/types.js",
+    "#http/*.js": "./src/http/*.js",
+    "#routes/*.js": "./src/routes/*.js",
+    "#services/*.js": "./src/services/*.js"
+  },
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "tsx src/main.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.10.0"
+  },
+  "devDependencies": {
+    "@showcase/oxlint-rules": "workspace:*",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^26.3.0",
+    "oxlint": "^1.79.0",
+    "oxlint-tsgolint": "^7.0.2001",
+    "tsx": "^4.21.0",
+    "typescript": "^7.0.2"
+  }
+}

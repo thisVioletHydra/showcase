@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "dist",
+    "rootDir": "src",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "declaration": false,
+    "paths": {
+      "#config.js": ["./src/config.ts"],
+      "#db.js": ["./src/db.ts"],
+      "#schema.js": ["./src/schema.ts"],
+      "#seed.js": ["./src/seed.ts"],
+      "#types.js": ["./src/types.ts"],
+      "#http/*.js": ["./src/http/*.ts"],
+      "#routes/*.js": ["./src/routes/*.ts"],
+      "#services/*.js": ["./src/services/*.ts"]
+    }
+  },
+  "include": ["src/**/*"]
+}

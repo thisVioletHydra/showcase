@@ -1,0 +1,12 @@
+shellEmulator: true
+trustPolicy: no-downgrade
+
+minimumReleaseAge: 1440
+
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+allowBuilds:
+  esbuild: true
+  better-sqlite3: true
