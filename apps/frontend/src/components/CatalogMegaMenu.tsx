@@ -82,7 +82,7 @@ function CatalogStub() {
     <div className={styles.stub}>
       <img
         className={styles.stubCat}
-        src="/assets/catalog-stub-cat.svg"
+        src="/assets/catalog-stub-cat.png"
         alt=""
       />
     </div>
