@@ -1,5 +1,5 @@
 @import url('./fonts.css');
-@import url('../../../../../figma/tokens.css');
+@import url('./tokens.css');
 
 *,
 *::before,

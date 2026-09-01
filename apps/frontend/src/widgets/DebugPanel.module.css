@@ -127,6 +127,22 @@
   cursor: pointer;
 }
 
-.promoBtn:hover {
-  background: #111827;
+.chipPromo {
+  background: #4c9a2a;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.chipPromo:hover {
+  background: #3d7d22;
+}
+
+.cardPromo .promos {
+  max-height: 220px;
+}
+
+.cardPromo .status {
+  margin-bottom: 8px;
 }

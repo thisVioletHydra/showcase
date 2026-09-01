@@ -17,6 +17,8 @@ interface PromoRow {
   used_count: number;
 }
 
+const showDevTools = import.meta.env.DEV;
+
 function adminHeaders(): HeadersInit {
   return { Authorization: `Bearer ${getAdminToken()}` };
 }
@@ -36,7 +38,7 @@ export function DebugPanel() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [status, setStatus] = useState('debug');
+  const [status, setStatus] = useState(showDevTools ? 'debug' : '');
   const [lastOrderId, setLastOrderId] = useState<string | null>(() => loadLastOrderId());
   const [promos, setPromos] = useState<PromoRow[]>([]);
 
@@ -54,6 +56,9 @@ export function DebugPanel() {
         headers: adminHeaders(),
       });
       setPromos(data.promocodes);
+      if (!showDevTools) {
+        setStatus('');
+      }
     } catch (err: unknown) {
       setStatus(err instanceof Error ? err.message : 'промо не загрузились');
     }
@@ -73,9 +78,12 @@ export function DebugPanel() {
       return;
     }
 
-    void pingHealth().then((alive) => {
-      setStatus(alive ? 'бэк живой' : 'бэк молчит');
-    });
+    if (showDevTools) {
+      void pingHealth().then((alive) => {
+        setStatus(alive ? 'бэк живой' : 'бэк молчит');
+      });
+    }
+
     void loadPromos();
   }, [open, loadPromos, pingHealth]);
 
@@ -160,57 +168,61 @@ export function DebugPanel() {
     }
   };
 
+  const chipLabel = showDevTools ? 'DEBUG_MENU' : 'Промокоды';
+
   return (
     <div className={styles.wrap}>
       {open ? (
-        <div className={styles.card}>
+        <div className={`${styles.card} ${showDevTools ? '' : styles.cardPromo}`}>
           <div className={styles.head}>
-            <strong>TZ debug</strong>
+            <strong>{showDevTools ? 'TZ debug' : 'Промокоды'}</strong>
             <button type="button" className={styles.iconBtn} onClick={() => setOpen(false)}>
               ×
             </button>
           </div>
 
-          <p className={styles.status}>{status}</p>
+          {status ? <p className={styles.status}>{status}</p> : null}
 
-          <div className={styles.grid}>
-            <button type="button" disabled={busy} onClick={() => navigate('/admin')}>
-              Админка
-            </button>
-            <button
-              type="button"
-              disabled={busy || !lastOrderId}
-              onClick={() => {
-                if (lastOrderId) {
-                  navigate(`/order?id=${lastOrderId}`);
-                }
-              }}
-            >
-              Последний заказ
-            </button>
-            <button type="button" disabled={busy} onClick={() => setSuppliers(1, 0, 'fail 100%')}>
-              Fail поставщиков
-            </button>
-            <button type="button" disabled={busy} onClick={() => setSuppliers(0, 1, 'timeout 100%')}>
-              Timeout
-            </button>
-            <button type="button" disabled={busy} onClick={() => setSuppliers(0, 0, 'поставщики OK')}>
-              Поставщики OK
-            </button>
-            <button type="button" disabled={busy} onClick={addKey}>
-              + ключ
-            </button>
-            <button
-              type="button"
-              className={styles.danger}
-              disabled={busy}
-              onClick={restartBackend}
-            >
-              Ронять бэк
-            </button>
-          </div>
+          {showDevTools ? (
+            <div className={styles.grid}>
+              <button type="button" disabled={busy} onClick={() => navigate('/admin')}>
+                Админка
+              </button>
+              <button
+                type="button"
+                disabled={busy || !lastOrderId}
+                onClick={() => {
+                  if (lastOrderId) {
+                    navigate(`/order?id=${lastOrderId}`);
+                  }
+                }}
+              >
+                Последний заказ
+              </button>
+              <button type="button" disabled={busy} onClick={() => setSuppliers(1, 0, 'fail 100%')}>
+                Fail поставщиков
+              </button>
+              <button type="button" disabled={busy} onClick={() => setSuppliers(0, 1, 'timeout 100%')}>
+                Timeout
+              </button>
+              <button type="button" disabled={busy} onClick={() => setSuppliers(0, 0, 'поставщики OK')}>
+                Поставщики OK
+              </button>
+              <button type="button" disabled={busy} onClick={addKey}>
+                + ключ
+              </button>
+              <button
+                type="button"
+                className={styles.danger}
+                disabled={busy}
+                onClick={restartBackend}
+              >
+                Ронять бэк
+              </button>
+            </div>
+          ) : null}
 
-          <p className={styles.sectionLabel}>Промокоды</p>
+          {showDevTools ? <p className={styles.sectionLabel}>Промокоды</p> : null}
           <ul className={styles.promos}>
             {promos.length === 0 ? (
               <li className={styles.empty}>нет данных</li>
@@ -231,8 +243,12 @@ export function DebugPanel() {
           </ul>
         </div>
       ) : (
-        <button type="button" className={styles.chip} onClick={() => setOpen(true)}>
-          DEBUG_MENU
+        <button
+          type="button"
+          className={`${styles.chip} ${showDevTools ? '' : styles.chipPromo}`}
+          onClick={() => setOpen(true)}
+        >
+          {chipLabel}
         </button>
       )}
     </div>
