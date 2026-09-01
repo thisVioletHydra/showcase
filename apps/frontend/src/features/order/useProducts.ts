@@ -1,25 +1,33 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { apiFetch } from '#/shared/api/client';
+import { ensureProducts, getCachedProducts } from '#/features/order/productsCatalog';
 import type { Product } from '#/shared/types';
 
-interface ProductsResponse {
-  products: Product[];
+function sliceProducts(products: Product[], limit: number): Product[] {
+  return limit > 0 ? products.slice(0, limit) : products;
 }
 
 /** `limit <= 0` — весь каталог с API. */
 export function useProducts(limit = 5) {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cached = getCachedProducts();
+  const [products, setProducts] = useState<Product[]>(() =>
+    cached ? sliceProducts(cached, limit) : [],
+  );
+  const [loading, setLoading] = useState(!cached);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
-    void apiFetch<ProductsResponse>('/api/products')
-      .then((data) => {
+    void ensureProducts((fresh) => {
+      if (!cancelled) {
+        setProducts(sliceProducts(fresh, limit));
+        setError(null);
+      }
+    })
+      .then((all) => {
         if (!cancelled) {
-          setProducts(limit > 0 ? data.products.slice(0, limit) : data.products);
+          setProducts(sliceProducts(all, limit));
           setError(null);
         }
       })

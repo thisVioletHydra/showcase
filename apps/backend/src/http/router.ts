@@ -98,11 +98,17 @@ export function compileRoute(pathPattern: string): { pattern: RegExp; paramNames
   };
 }
 
-export function sendJson(res: ServerResponse, status: number, payload: unknown): void {
+export function sendJson(
+  res: ServerResponse,
+  status: number,
+  payload: unknown,
+  extraHeaders?: Record<string, string>,
+): void {
   const body = JSON.stringify(payload);
   res.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8',
     'Content-Length': Buffer.byteLength(body),
+    ...extraHeaders,
   });
   res.end(body);
 }
