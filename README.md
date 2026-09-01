@@ -63,34 +63,26 @@ Set repo variable `VITE_API_URL` to your backend (Settings → Secrets and varia
 
 URL: `https://<user>.github.io/showcase/`
 
-### Backend → Railway (Docker)
+### Backend → Railway (Railpack)
 
 SQLite needs a persistent volume. Front — GitHub Pages.
 
-**Service settings:**
-
-| Setting | Value |
-|---------|--------|
-| Root Directory | *(empty — repo root)* |
-| Builder | **Dockerfile** (`Dockerfile` in root) |
-| Healthcheck | `/health` |
+**Service:** repo root (не `apps/backend`), builder **Railpack**.
 
 **Variables (обязательно):**
 
 | Name | Value |
 |------|--------|
+| `RAILPACK_NO_SPA` | `true` — иначе Railpack деплоит Vite как статику |
+| `RAILPACK_NODE_VERSION` | `24` |
 | `ADMIN_TOKEN` | secret |
 | `WEBHOOK_SECRET` | secret |
 | `CORS_ORIGIN` | `https://thisviolethydra.github.io` |
 | `DB_PATH` | `/data/showcase.db` |
 
-**Volume:** mount at `/data`.
+**Volume:** mount `/data`.
 
-Без `ADMIN_TOKEN` / `WEBHOOK_SECRET` бэк упадёт на старте (`NODE_ENV=production`).
-
-**GitHub Pages:** variable `VITE_API_URL` = `https://<service>.up.railway.app` → redeploy Pages.
-
-Config: `railway.toml`, `Dockerfile`.
+Config: `railway.toml`, `railpack.json`. Пример env: `apps/backend/.env.example`.
 
 ## Submission checklist
 

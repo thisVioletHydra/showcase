@@ -1,8 +1,10 @@
 [build]
-builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
+builder = "RAILPACK"
+buildCommand = "pnpm install --frozen-lockfile"
+watchPatterns = ["apps/backend/**", "packages/**", "specs/**", "pnpm-lock.yaml", "railpack.json"]
 
 [deploy]
+startCommand = "pnpm --filter backend start"
 healthcheckPath = "/health"
 healthcheckTimeout = 120
 restartPolicyType = "ON_FAILURE"
