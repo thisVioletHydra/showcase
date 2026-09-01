@@ -55,8 +55,8 @@ __pycache__/
 # Local SQLite files (tracked apps/backend/data/showcase.db stays until untracked)
 *.db
 
-# Design exports / Figma dumps
-figma/
+# Local design exports (not tracked)
+design-exports/
 
 # Agent / one-off local dumps
 .agent-check

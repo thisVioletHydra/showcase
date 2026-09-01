@@ -38,7 +38,7 @@ export function SearchIcon() {
   );
 }
 
-/** Figma heart inside 32×32 #EFF1F5 chip. */
+/** Heart icon inside 32×32 chip. */
 export function HeartIcon() {
   return (
     <svg width="14" height="13" viewBox="1365 33 14 13" fill="none" aria-hidden="true">
@@ -50,7 +50,7 @@ export function HeartIcon() {
   );
 }
 
-/** Figma profile glyph in 44×44 #F2F4F7 button. */
+/** Profile glyph in 44×44 button. */
 export function ProfileIcon() {
   return (
     <svg width="20" height="20" viewBox="1531.5 31.8 13.1 16" fill="none" aria-hidden="true">
