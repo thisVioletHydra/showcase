@@ -61,7 +61,7 @@ pnpm --filter frontend build:pages
 
 Set repo variable `VITE_API_URL` to your backend (Settings → Secrets and variables → Actions → Variables). Workflow: `.github/workflows/pages.yml`.
 
-URL: `https://<user>.github.io/showcase/`
+**Live:** https://thisviolethydra.github.io/showcase/
 
 ### Backend → Railway (Railpack)
 
@@ -84,13 +84,15 @@ SQLite needs a persistent volume. Front — GitHub Pages.
 
 Config: `railway.toml`, `railpack.json`. Пример env: `apps/backend/.env.example`.
 
+**Live:** https://showcase-production-1f62.up.railway.app (`/health`, `/api/products`)
+
 ## Submission checklist
 
-1. Live front (GitHub Pages) + backend (Railway) or local README run
+1. **Live demo:** front https://thisviolethydra.github.io/showcase/ · back https://showcase-production-1f62.up.railway.app · repo https://github.com/thisVioletHydra/showcase
 2. Repo / archive with this README
 3. Race reproduction: `pnpm test` + `pnpm race:*`
 4. One-time issue summary: section above
-5. Time spent: _fill in_
+5. Time spent: ~7–8 hours (5–6 development + ~2 deploy/debug)
 
 ## Pages
 
