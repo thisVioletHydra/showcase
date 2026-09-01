@@ -63,26 +63,22 @@ Set repo variable `VITE_API_URL` to your backend (Settings → Secrets and varia
 
 URL: `https://<user>.github.io/showcase/`
 
-### Backend → Railway
+### Backend → Railway (Docker)
 
-SQLite needs a persistent volume (`DB_PATH`). Front stays on GitHub Pages.
+SQLite needs a persistent volume. Front — GitHub Pages.
 
-**Railway service (repo root, not `apps/backend`):**
+**Service settings:**
 
 | Setting | Value |
 |---------|--------|
-| Root Directory | *(empty)* |
-| Builder | Railpack (default) |
-| Build Command | `pnpm install --frozen-lockfile` |
-| Start Command | `pnpm --filter backend start` |
-| Watch Paths | `apps/backend/**`, `specs/**`, `packages/**` |
+| Root Directory | *(empty — repo root)* |
+| Builder | **Dockerfile** (`Dockerfile` in root) |
+| Healthcheck | `/health` |
 
-**Variables (Railway → Variables):**
+**Variables (обязательно):**
 
 | Name | Value |
 |------|--------|
-| `RAILPACK_NO_SPA` | `true` — иначе Railpack думает, что это Vite SPA |
-| `RAILPACK_NODE_VERSION` | `24` |
 | `ADMIN_TOKEN` | secret |
 | `WEBHOOK_SECRET` | secret |
 | `CORS_ORIGIN` | `https://thisviolethydra.github.io` |
@@ -90,9 +86,11 @@ SQLite needs a persistent volume (`DB_PATH`). Front stays on GitHub Pages.
 
 **Volume:** mount at `/data`.
 
-**GitHub Pages:** repo variable `VITE_API_URL` = `https://<service>.up.railway.app` → redeploy Pages.
+Без `ADMIN_TOKEN` / `WEBHOOK_SECRET` бэк упадёт на старте (`NODE_ENV=production`).
 
-Config in repo: `railway.toml`, `railpack.json`.
+**GitHub Pages:** variable `VITE_API_URL` = `https://<service>.up.railway.app` → redeploy Pages.
+
+Config: `railway.toml`, `Dockerfile`.
 
 ## Submission checklist
 
