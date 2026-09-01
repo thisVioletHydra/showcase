@@ -53,11 +53,15 @@ Optional env: `API_URL`, `PARALLEL`, `SKU=KEY-CS2-PRIME`.
 
 ### Frontend → GitHub Pages
 
+**Repo must be public** (or GitHub Pro for private Pages). Settings → Pages → Source: **GitHub Actions**.
+
 ```bash
 pnpm --filter frontend build:pages
 ```
 
-Set `VITE_API_URL` to your backend. Workflow: `.github/workflows/pages.yml`.
+Set repo variable `VITE_API_URL` to your backend (Settings → Secrets and variables → Actions → Variables). Workflow: `.github/workflows/pages.yml`.
+
+URL: `https://<user>.github.io/showcase/`
 
 ### Backend → Railway / Render / Fly
 
