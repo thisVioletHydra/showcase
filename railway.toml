@@ -1,0 +1,9 @@
+[build]
+builder = "RAILPACK"
+buildCommand = "pnpm install --frozen-lockfile"
+watchPatterns = ["apps/backend/**", "packages/**", "specs/**", "pnpm-lock.yaml", "railpack.json", "railway.toml"]
+
+[deploy]
+startCommand = "pnpm --filter backend start"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10

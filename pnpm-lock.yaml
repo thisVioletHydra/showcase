@@ -23,6 +23,9 @@ importers:
       better-sqlite3:
         specifier: ^11.10.0
         version: 11.10.0
+      tsx:
+        specifier: ^4.21.0
+        version: 4.23.13
     devDependencies:
       '@showcase/oxlint-rules':
         specifier: workspace:*
@@ -39,9 +42,6 @@ importers:
       oxlint-tsgolint:
         specifier: ^7.0.2001
         version: 7.0.2001
-      tsx:
-        specifier: ^4.21.0
-        version: 4.23.13
       typescript:
         specifier: ^7.0.2
         version: 7.0.2

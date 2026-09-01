@@ -5,6 +5,8 @@
   "scripts": {
     "front": "pnpm --filter frontend dev",
     "back": "pnpm --filter backend dev",
+    "build:backend": "pnpm --filter backend build",
+    "start:backend": "pnpm --filter backend start",
     "lint": "pnpm -r exec oxlint --deny-warnings",
     "typecheck": "pnpm -r run typecheck",
     "build": "pnpm --filter backend build && pnpm --filter frontend build",

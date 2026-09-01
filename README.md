@@ -63,20 +63,40 @@ Set repo variable `VITE_API_URL` to your backend (Settings → Secrets and varia
 
 URL: `https://<user>.github.io/showcase/`
 
-### Backend → Railway / Render / Fly
+### Backend → Railway
 
-SQLite needs a persistent volume (`DB_PATH`).
+SQLite needs a persistent volume (`DB_PATH`). Front stays on GitHub Pages.
 
-```bash
-pnpm --filter backend build
-pnpm --filter backend start
-```
+**Railway service (repo root, not `apps/backend`):**
 
-Env: `PORT`, `DB_PATH`, `ADMIN_TOKEN`, `CORS_ORIGIN`.
+| Setting | Value |
+|---------|--------|
+| Root Directory | *(empty)* |
+| Builder | Railpack (default) |
+| Build Command | `pnpm install --frozen-lockfile` |
+| Start Command | `pnpm --filter backend start` |
+| Watch Paths | `apps/backend/**`, `specs/**`, `packages/**` |
+
+**Variables (Railway → Variables):**
+
+| Name | Value |
+|------|--------|
+| `RAILPACK_NO_SPA` | `true` — иначе Railpack думает, что это Vite SPA |
+| `RAILPACK_NODE_VERSION` | `24` |
+| `ADMIN_TOKEN` | secret |
+| `WEBHOOK_SECRET` | secret |
+| `CORS_ORIGIN` | `https://thisviolethydra.github.io` |
+| `DB_PATH` | `/data/showcase.db` |
+
+**Volume:** mount at `/data`.
+
+**GitHub Pages:** repo variable `VITE_API_URL` = `https://<service>.up.railway.app` → redeploy Pages.
+
+Config in repo: `railway.toml`, `railpack.json`.
 
 ## Submission checklist
 
-1. Live front (Pages/Netlify/Vercel) or local README run
+1. Live front (GitHub Pages) + backend (Railway) or local README run
 2. Repo / archive with this README
 3. Race reproduction: `pnpm test` + `pnpm race:*`
 4. One-time issue summary: section above

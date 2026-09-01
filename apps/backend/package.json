@@ -20,7 +20,8 @@
     "test": "tsx --import ./test/preload.ts --test test/**/*.test.ts"
   },
   "dependencies": {
-    "better-sqlite3": "^11.10.0"
+    "better-sqlite3": "^11.10.0",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@showcase/oxlint-rules": "workspace:*",
@@ -28,7 +29,6 @@
     "@types/node": "^26.3.0",
     "oxlint": "^1.79.0",
     "oxlint-tsgolint": "^7.0.2001",
-    "tsx": "^4.21.0",
     "typescript": "^7.0.2"
   }
 }
