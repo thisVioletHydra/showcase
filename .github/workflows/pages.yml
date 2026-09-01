@@ -38,6 +38,7 @@ jobs:
         run: pnpm --filter frontend build:pages
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_ADMIN_TOKEN: ${{ vars.VITE_ADMIN_TOKEN }}
 
       - uses: actions/configure-pages@v5
         with:
