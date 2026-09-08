@@ -7,7 +7,8 @@
     "back": "pnpm --filter backend dev",
     "build:backend": "pnpm --filter backend build",
     "start:backend": "pnpm --filter backend start",
-    "lint": "pnpm -r exec oxlint --deny-warnings",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
     "typecheck": "pnpm -r run typecheck",
     "build": "pnpm --filter backend build && pnpm --filter frontend build",
     "race:webhook": "node scripts/race-webhook.mjs",
@@ -20,8 +21,7 @@
   },
   "packageManager": "pnpm@11.22.0",
   "devDependencies": {
-    "@showcase/oxlint-rules": "workspace:*",
-    "oxlint": "^1.79.0",
-    "oxlint-tsgolint": "^7.0.2001"
+    "@oxyhub/oxlint-plugin": "^0.3.0",
+    "oxlint": "^1.80.0"
   }
 }
