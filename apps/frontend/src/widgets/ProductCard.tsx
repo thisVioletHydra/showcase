@@ -1,18 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { apiFetch, isSoldOutError, soldOutNeighbor } from '#/shared/api/client';
+import { claimProductOrder } from '#/features/order/claimOrder';
+import { isSoldOutError, soldOutNeighbor } from '#/shared/api/client';
 import { displayProductName, formatPrice, resolveProductImage, strikePrice } from '#/shared/data/home';
 import { assetUrl } from '#/shared/lib/assetUrl';
-import {
-  clearPendingOrderId,
-  getBuyerId,
-  loadPendingOrderId,
-  savePendingOrderId,
-} from '#/shared/lib/buyer';
-import { saveLastOrderId } from '#/shared/lib/orderDisplay';
+import { clearPendingOrderId } from '#/shared/lib/buyer';
 import { withDebugQuery } from '#/shared/lib/debugQuery';
-import type { CreateOrderResponse, Product } from '#/shared/types';
+import type { Product } from '#/shared/types';
 
 import styles from './ProductCard.module.css';
 
@@ -37,22 +32,7 @@ export function ProductCard({ product, purchasable = false }: ProductCardProps) 
     setNeighbor(null);
 
     try {
-      const pendingId = loadPendingOrderId(target.sku);
-      const body: { sku: string; buyer_id: string; order_id?: string } = {
-        sku: target.sku,
-        buyer_id: getBuyerId(),
-      };
-
-      if (pendingId) {
-        body.order_id = pendingId;
-      }
-
-      const result = await apiFetch<CreateOrderResponse>('/api/orders', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      });
-      savePendingOrderId(target.sku, result.order_id);
-      saveLastOrderId(result.order_id);
+      const result = await claimProductOrder({ sku: target.sku });
       navigate(withDebugQuery(`/order?id=${result.order_id}`));
     } catch (err: unknown) {
       if (isSoldOutError(err)) {

@@ -3,17 +3,12 @@ import { useNavigate } from 'react-router-dom';
 
 import { SERVICE_ITEMS } from '#/shared/data/home';
 import { useCurrency } from '#/features/currency/useCurrency';
-import { apiFetch, isSoldOutError, soldOutNeighbor } from '#/shared/api/client';
+import { claimProductOrder } from '#/features/order/claimOrder';
+import { isSoldOutError, soldOutNeighbor } from '#/shared/api/client';
 import { assetUrl } from '#/shared/lib/assetUrl';
-import {
-  clearPendingOrderId,
-  getBuyerId,
-  loadPendingOrderId,
-  savePendingOrderId,
-} from '#/shared/lib/buyer';
-import { saveLastOrderId, saveOrderDisplay } from '#/shared/lib/orderDisplay';
+import { clearPendingOrderId } from '#/shared/lib/buyer';
+import { saveOrderDisplay } from '#/shared/lib/orderDisplay';
 import { withDebugQuery } from '#/shared/lib/debugQuery';
-import type { CreateOrderResponse } from '#/shared/types';
 
 import styles from './ServicesSteamCard.module.css';
 
@@ -115,40 +110,17 @@ export function ServicesSteamCard() {
     setError(null);
 
     try {
-      const pendingId = loadPendingOrderId(TOPUP_SKU);
-      const body: {
-        sku: string;
-        amount: number;
-        currency: string;
-        buyer_id: string;
-        order_id?: string;
-        promocode?: string;
-      } = {
+      const result = await claimProductOrder({
         sku: TOPUP_SKU,
         amount: amountValue,
         currency,
-        buyer_id: getBuyerId(),
-      };
-
-      if (pendingId) {
-        body.order_id = pendingId;
-      }
-
-      if (promo.trim()) {
-        body.promocode = promo.trim();
-      }
-
-      const result = await apiFetch<CreateOrderResponse>('/api/orders', {
-        method: 'POST',
-        body: JSON.stringify(body),
+        promocode: promo.trim() || undefined,
       });
 
-      savePendingOrderId(TOPUP_SKU, result.order_id);
       saveOrderDisplay(result.order_id, {
         label: selected.label,
         icon: selected.icon ?? assetUrl('assets/webp/services/steam.webp'),
       });
-      saveLastOrderId(result.order_id);
 
       navigate(withDebugQuery(`/order?id=${result.order_id}`));
     } catch (err: unknown) {

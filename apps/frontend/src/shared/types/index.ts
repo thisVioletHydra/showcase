@@ -53,6 +53,11 @@ export interface CatalogSnapshot {
   products: Product[];
 }
 
+export interface CatalogSearchResponse {
+  products: Product[];
+  total?: number;
+}
+
 export type CurrencyCode = 'USD' | 'KZT' | 'RUB';
 
 export interface CatalogCategory {

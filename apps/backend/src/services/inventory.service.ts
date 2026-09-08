@@ -348,8 +348,54 @@ export function claimOrder(input: ClaimOrderInput): ClaimOrderResult {
     if (db.inTransaction) {
       db.prepare('ROLLBACK').run();
     }
+
+    if (isUniqueConstraintError(error)) {
+      const recovered = recoverExistingHold(input);
+      if (recovered) {
+        return recovered;
+      }
+    }
+
     throw error;
   }
+}
+
+function isUniqueConstraintError(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) {
+    return false;
+  }
+
+  const code = 'code' in error && typeof error.code === 'string' ? error.code : '';
+  if (code.startsWith('SQLITE_CONSTRAINT')) {
+    return true;
+  }
+
+  const message = 'message' in error && typeof error.message === 'string'
+    ? error.message
+    : '';
+  return message.includes('UNIQUE constraint failed');
+}
+
+function recoverExistingHold(input: ClaimOrderInput): ClaimOrderResult | null {
+  const db = getDb();
+  expireStaleReservations(db);
+
+  const hinted = reuseOrder(db, input);
+  if (hinted) {
+    return { ok: true, order: hinted, created: false };
+  }
+
+  const active = getHeldReservation(db, input.buyerId, input.sku);
+  if (!active) {
+    return null;
+  }
+
+  const current = getOrderById(active.order_id, db);
+  if (current && current.status === 'created') {
+    return { ok: true, order: current, created: false };
+  }
+
+  return null;
 }
 
 export function countAvailableUnits(sku: string, db: Database.Database = getDb()): number {

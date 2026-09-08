@@ -123,6 +123,8 @@ export function initSchema(db: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_inventory_units_order ON inventory_units(order_id);
     CREATE INDEX IF NOT EXISTS idx_reservations_buyer_sku ON reservations(buyer_id, sku, status);
     CREATE INDEX IF NOT EXISTS idx_reservations_held_until ON reservations(held_until);
+    CREATE INDEX IF NOT EXISTS idx_products_type ON products(type);
+    CREATE INDEX IF NOT EXISTS idx_products_name ON products(name);
     CREATE UNIQUE INDEX IF NOT EXISTS idx_reservations_buyer_sku_held
       ON reservations(buyer_id, sku) WHERE status = 'held';
     CREATE UNIQUE INDEX IF NOT EXISTS idx_reservations_unit_active

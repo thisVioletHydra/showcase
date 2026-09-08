@@ -48,6 +48,11 @@ export async function apiFetch<T>(
   return response.json() as Promise<T>;
 }
 
+export function isAbortError(error: unknown): boolean {
+  return (error instanceof DOMException && error.name === 'AbortError')
+    || (error instanceof Error && error.name === 'AbortError');
+}
+
 export function catalogStreamUrl(): string {
   return `${API_BASE}/api/catalog/stream`;
 }

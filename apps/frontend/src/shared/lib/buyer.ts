@@ -1,18 +1,31 @@
 const BUYER_KEY = 'showcase:buyer-id';
 const PENDING_PREFIX = 'showcase:pending-order:';
 
+let memoryBuyerId: string | null = null;
+
+function createBuyerId(): string {
+  return `buy_${crypto.randomUUID().replaceAll('-', '')}`;
+}
+
 export function getBuyerId(): string {
+  if (memoryBuyerId) {
+    return memoryBuyerId;
+  }
+
   try {
     const existing = sessionStorage.getItem(BUYER_KEY);
     if (existing && existing.length > 0) {
+      memoryBuyerId = existing;
       return existing;
     }
 
-    const created = `buy_${crypto.randomUUID().replaceAll('-', '')}`;
+    const created = createBuyerId();
     sessionStorage.setItem(BUYER_KEY, created);
+    memoryBuyerId = created;
     return created;
   } catch {
-    return `buy_${crypto.randomUUID().replaceAll('-', '')}`;
+    memoryBuyerId = createBuyerId();
+    return memoryBuyerId;
   }
 }
 
@@ -41,7 +54,9 @@ export function clearPendingOrderId(sku: string): void {
 }
 
 export function rotateBuyerId(): string {
-  const created = `buy_${crypto.randomUUID().replaceAll('-', '')}`;
+  const created = createBuyerId();
+  memoryBuyerId = created;
+
   try {
     sessionStorage.setItem(BUYER_KEY, created);
     const keys: string[] = [];
