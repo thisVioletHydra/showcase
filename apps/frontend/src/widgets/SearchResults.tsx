@@ -12,21 +12,19 @@ interface SearchResultsProps {
 }
 
 export function SearchResults({ q, type }: SearchResultsProps) {
-  const [, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { products, total, loading, error } = useCatalogSearch(q, type, 50);
   const needle = q.trim();
   const title = needle ? `Результаты: «${needle}»` : 'Каталог';
 
   const setType = (next: string) => {
-    setSearchParams((current) => {
-      const params = new URLSearchParams(current);
-      if (next) {
-        params.set('type', next);
-      } else {
-        params.delete('type');
-      }
-      return params;
-    }, { replace: true });
+    const params = new URLSearchParams(searchParams);
+    if (next) {
+      params.set('type', next);
+    } else {
+      params.delete('type');
+    }
+    setSearchParams(params, { replace: true });
   };
 
   return (

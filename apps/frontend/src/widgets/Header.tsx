@@ -49,6 +49,7 @@ export function Header() {
     }
 
     const search = next.toString();
+    setOpen(false);
     navigate({
       pathname: '/',
       search: search ? `?${search}` : '',
@@ -135,6 +136,10 @@ export function Header() {
                     event.preventDefault();
                     setOpen(false);
                     commitQuery(query, false);
+                  }
+                  if (event.key === 'Escape') {
+                    event.preventDefault();
+                    setOpen(false);
                   }
                 }}
               />
