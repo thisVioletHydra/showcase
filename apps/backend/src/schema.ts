@@ -113,7 +113,12 @@ export function initSchema(db: Database.Database): void {
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
+  `);
 
+  addColumnIfMissing(db, 'orders', 'buyer_id', 'TEXT');
+  addColumnIfMissing(db, 'orders', 'held_until', 'TEXT');
+
+  db.exec(`
     CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
     CREATE INDEX IF NOT EXISTS idx_orders_buyer_sku ON orders(buyer_id, sku);
     CREATE INDEX IF NOT EXISTS idx_key_pool_status ON key_pool(status);
@@ -130,7 +135,4 @@ export function initSchema(db: Database.Database): void {
     CREATE UNIQUE INDEX IF NOT EXISTS idx_reservations_unit_active
       ON reservations(unit_id) WHERE status IN ('held', 'captured');
   `);
-
-  addColumnIfMissing(db, 'orders', 'buyer_id', 'TEXT');
-  addColumnIfMissing(db, 'orders', 'held_until', 'TEXT');
 }
