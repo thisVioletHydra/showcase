@@ -1,49 +1,67 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { apiFetch } from '#/shared/api/client';
+import { claimProductOrder } from '#/features/order/claimOrder';
+import { isSoldOutError, soldOutNeighbor } from '#/shared/api/client';
 import { displayProductName, formatPrice, resolveProductImage, strikePrice } from '#/shared/data/home';
 import { assetUrl } from '#/shared/lib/assetUrl';
-import { saveLastOrderId } from '#/shared/lib/orderDisplay';
-import type { CreateOrderResponse, Product } from '#/shared/types';
+import { clearPendingOrderId } from '#/shared/lib/buyer';
+import { withDebugQuery } from '#/shared/lib/debugQuery';
+import type { Product } from '#/shared/types';
 
 import styles from './ProductCard.module.css';
 
 interface ProductCardProps {
   product: Product;
-  index?: number;
   purchasable?: boolean;
 }
 
-export function ProductCard({ product, index = 0, purchasable = false }: ProductCardProps) {
+export function ProductCard({ product, purchasable = false }: ProductCardProps) {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [neighbor, setNeighbor] = useState<Product | null>(null);
 
-  const onBuy = async () => {
+  const claimProduct = async (target: Product) => {
     if (!purchasable || busy) {
       return;
     }
 
     setBusy(true);
     setError(null);
+    setNeighbor(null);
 
     try {
-      const result = await apiFetch<CreateOrderResponse>('/api/orders', {
-        method: 'POST',
-        body: JSON.stringify({ sku: product.sku }),
-      });
-      saveLastOrderId(result.order_id);
-      navigate(`/order?id=${result.order_id}`);
+      const result = await claimProductOrder({ sku: target.sku });
+      navigate(withDebugQuery(`/order?id=${result.order_id}`));
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Order failed');
+      if (isSoldOutError(err)) {
+        clearPendingOrderId(target.sku);
+        setNeighbor(soldOutNeighbor(err));
+        setError(err instanceof Error ? err.message : 'Товар закончился');
+      } else {
+        setError(err instanceof Error ? err.message : 'Order failed');
+      }
       setBusy(false);
+    }
+  };
+
+  const onBuy = () => {
+    void claimProduct(product);
+  };
+
+  const onBuyNeighbor = () => {
+    if (neighbor) {
+      void claimProduct(neighbor);
     }
   };
 
   const cover = resolveProductImage(product.image, product.sku);
   const title = displayProductName(product.name);
   const oldPrice = strikePrice(product.price);
+  const inStock = product.available > 0;
+  const canBuy = purchasable && inStock;
+  const soldOut = purchasable && inStock === false;
 
   return (
     <article className={styles.card}>
@@ -59,21 +77,37 @@ export function ProductCard({ product, index = 0, purchasable = false }: Product
           <span className={styles.price}>{formatPrice(product.price, product.currency)}</span>
           <span className={styles.strike}>{formatPrice(oldPrice, product.currency)}</span>
         </div>
-        {purchasable ? (
+        <p className={styles.stock}>
+          {inStock ? `Осталось ${product.available}` : 'Нет в наличии'}
+        </p>
+        {canBuy ? (
           <button
             type="button"
             className={styles.buyBtn}
             disabled={busy}
-            onClick={() => void onBuy()}
+            onClick={onBuy}
           >
             {busy ? '…' : 'Купить'}
           </button>
         ) : (
           <button type="button" className={styles.buyBtnMuted} disabled>
-            Купить
+            {soldOut ? 'Нет в наличии' : 'Купить'}
           </button>
         )}
         {error ? <p className={styles.error}>{error}</p> : null}
+        {neighbor ? (
+          <div className={styles.neighbor}>
+            <p className={styles.neighborLabel}>Рядом в каталоге</p>
+            <button
+              type="button"
+              className={styles.neighborBtn}
+              disabled={busy}
+              onClick={onBuyNeighbor}
+            >
+              {displayProductName(neighbor.name)} — {formatPrice(neighbor.price, neighbor.currency)}
+            </button>
+          </div>
+        ) : null}
       </div>
     </article>
   );

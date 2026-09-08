@@ -47,6 +47,13 @@ const META: Record<OrderStatus, OrderStatusMeta> = {
     title: 'Оплата не прошла',
     hint: 'Создай новый заказ — этот уже закрыт',
   },
+  expired: {
+    tone: 'danger',
+    mood: 'broken',
+    label: 'Истекло',
+    title: 'Резерв снят',
+    hint: 'Слот снова в продаже — начни покупку заново',
+  },
   out_of_stock: {
     tone: 'danger',
     mood: 'broken',
@@ -73,5 +80,6 @@ export function isTerminalStatus(status: OrderStatus): boolean {
     || status === 'payment_failed'
     || status === 'out_of_stock'
     || status === 'delivery_failed'
+    || status === 'expired'
   );
 }

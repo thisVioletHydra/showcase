@@ -3,18 +3,28 @@ import type Database from 'better-sqlite3';
 import { getDb } from '../db';
 import type { Order, OrderRow, OrderStatus } from '../types';
 
+const ORDER_COLUMNS = `
+  id, sku, status, amount, currency, key_code, promocode, created_at, updated_at, held_until
+`;
+
 export function generateOrderId(): string {
   return `ord_${crypto.randomUUID().replaceAll('-', '')}`;
 }
 
-export function mapOrder(row: OrderRow): Order {
-  return { ...row };
+export function generateBuyerId(): string {
+  return `buy_${crypto.randomUUID().replaceAll('-', '')}`;
 }
 
-export function getOrderById(orderId: string): Order | undefined {
-  const db = getDb();
+export function mapOrder(row: OrderRow): Order {
+  return {
+    ...row,
+    held_until: row.held_until ?? null,
+  };
+}
+
+export function getOrderById(orderId: string, db: Database.Database = getDb()): Order | undefined {
   const row = db.prepare(`
-    SELECT id, sku, status, amount, currency, key_code, promocode, created_at, updated_at
+    SELECT ${ORDER_COLUMNS}
     FROM orders
     WHERE id = ?
   `).get(orderId) as OrderRow | undefined;
@@ -28,16 +38,30 @@ export function createOrderRecord(input: {
   amount: number;
   currency: string;
   promocode: string | null;
+  buyerId?: string | null;
+  heldUntil?: string | null;
 }): Order {
   const db = getDb();
   const now = new Date().toISOString();
 
   db.prepare(`
-    INSERT INTO orders (id, sku, status, amount, currency, key_code, promocode, created_at, updated_at)
-    VALUES (?, ?, 'created', ?, ?, NULL, ?, ?, ?)
-  `).run(input.id, input.sku, input.amount, input.currency, input.promocode, now, now);
+    INSERT INTO orders (
+      id, sku, status, amount, currency, key_code, promocode, buyer_id, held_until, created_at, updated_at
+    )
+    VALUES (?, ?, 'created', ?, ?, NULL, ?, ?, ?, ?, ?)
+  `).run(
+    input.id,
+    input.sku,
+    input.amount,
+    input.currency,
+    input.promocode,
+    input.buyerId ?? null,
+    input.heldUntil ?? null,
+    now,
+    now,
+  );
 
-  return getOrderById(input.id)!;
+  return getOrderById(input.id, db)!;
 }
 
 export function transitionOrderStatus(
@@ -59,12 +83,21 @@ export function transitionOrderStatus(
   return result.changes > 0;
 }
 
+export function clearOrderHold(orderId: string, db: Database.Database = getDb()): void {
+  const now = new Date().toISOString();
+  db.prepare(`
+    UPDATE orders
+    SET held_until = NULL, updated_at = ?
+    WHERE id = ?
+  `).run(now, orderId);
+}
+
 export function listOrdersByStatus(statusFilter?: string): Order[] {
   const db = getDb();
 
   if (!statusFilter) {
     const rows = db.prepare(`
-      SELECT id, sku, status, amount, currency, key_code, promocode, created_at, updated_at
+      SELECT ${ORDER_COLUMNS}
       FROM orders
       ORDER BY created_at DESC
     `).all() as OrderRow[];
@@ -79,7 +112,7 @@ export function listOrdersByStatus(statusFilter?: string): Order[] {
 
   const placeholders = statuses.map(() => '?').join(', ');
   const rows = db.prepare(`
-    SELECT id, sku, status, amount, currency, key_code, promocode, created_at, updated_at
+    SELECT ${ORDER_COLUMNS}
     FROM orders
     WHERE status IN (${placeholders})
     ORDER BY created_at DESC
@@ -111,4 +144,14 @@ export function updateOrderAmount(
   `).run(amount, promocode, now, orderId);
 
   return result.changes > 0;
+}
+
+export function getOrderBuyerId(orderId: string, db: Database.Database = getDb()): string | null {
+  const row = db.prepare(`
+    SELECT buyer_id
+    FROM orders
+    WHERE id = ?
+  `).get(orderId) as { buyer_id: string | null } | undefined;
+
+  return row?.buyer_id ?? null;
 }

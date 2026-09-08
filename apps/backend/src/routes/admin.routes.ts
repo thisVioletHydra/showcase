@@ -18,7 +18,7 @@ import type { ServerResponse } from 'node:http';
 
 const MAX_ADMIN_KEYS = 1000;
 
-function assertAdmin(req: ApiRequest, res: ServerResponse): boolean {
+export function assertAdmin(req: ApiRequest, res: ServerResponse): boolean {
   const token = getBearerToken(req.headers);
   if (!token || !safeEqual(token, config.adminToken)) {
     sendError(res, 401, 'Unauthorized');

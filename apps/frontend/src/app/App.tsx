@@ -4,6 +4,7 @@ import { AdminPage } from '#/pages/AdminPage';
 import { HomePage } from '#/pages/HomePage';
 import { OrderPage } from '#/pages/OrderPage';
 import { DebugPanel } from '#/widgets/DebugPanel';
+import { Stage2Debug } from '#/widgets/Stage2Debug';
 
 export function App() {
   const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -16,6 +17,7 @@ export function App() {
         <Route path="/admin" element={<AdminPage />} />
       </Routes>
       <DebugPanel />
+      <Stage2Debug />
     </BrowserRouter>
   );
 }

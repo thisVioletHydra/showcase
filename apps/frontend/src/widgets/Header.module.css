@@ -91,7 +91,10 @@
   align-items: center;
   width: 100%;
   padding: 10px;
+  border: 0;
   border-radius: 10px;
+  background: transparent;
+  font-family: inherit;
   text-align: left;
   cursor: pointer;
   transition: background 0.12s ease;

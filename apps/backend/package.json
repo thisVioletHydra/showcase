@@ -24,11 +24,8 @@
     "tsx": "^4.21.0"
   },
   "devDependencies": {
-    "@showcase/oxlint-rules": "workspace:*",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^26.3.0",
-    "oxlint": "^1.79.0",
-    "oxlint-tsgolint": "^7.0.2001",
     "typescript": "^7.0.2"
   }
 }

@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 
 import { SERVICE_ITEMS } from '#/shared/data/home';
 import { useCurrency } from '#/features/currency/useCurrency';
-import { apiFetch } from '#/shared/api/client';
-import { saveLastOrderId, saveOrderDisplay } from '#/shared/lib/orderDisplay';
+import { claimProductOrder } from '#/features/order/claimOrder';
+import { isSoldOutError, soldOutNeighbor } from '#/shared/api/client';
 import { assetUrl } from '#/shared/lib/assetUrl';
-import type { CreateOrderResponse } from '#/shared/types';
+import { clearPendingOrderId } from '#/shared/lib/buyer';
+import { saveOrderDisplay } from '#/shared/lib/orderDisplay';
+import { withDebugQuery } from '#/shared/lib/debugQuery';
 
 import styles from './ServicesSteamCard.module.css';
 
@@ -108,30 +110,28 @@ export function ServicesSteamCard() {
     setError(null);
 
     try {
-      const body: { sku: string; amount: number; currency: string; promocode?: string } = {
+      const result = await claimProductOrder({
         sku: TOPUP_SKU,
         amount: amountValue,
         currency,
-      };
-
-      if (promo.trim()) {
-        body.promocode = promo.trim();
-      }
-
-      const result = await apiFetch<CreateOrderResponse>('/api/orders', {
-        method: 'POST',
-        body: JSON.stringify(body),
+        promocode: promo.trim() || undefined,
       });
 
       saveOrderDisplay(result.order_id, {
         label: selected.label,
         icon: selected.icon ?? assetUrl('assets/webp/services/steam.webp'),
       });
-      saveLastOrderId(result.order_id);
 
-      navigate(`/order?id=${result.order_id}`);
+      navigate(withDebugQuery(`/order?id=${result.order_id}`));
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Не удалось создать заказ');
+      if (isSoldOutError(err)) {
+        clearPendingOrderId(TOPUP_SKU);
+        const neighbor = soldOutNeighbor(err);
+        const hint = neighbor ? ` Рядом: ${neighbor.name}` : '';
+        setError(`${err instanceof Error ? err.message : 'Товар закончился'}.${hint}`);
+      } else {
+        setError(err instanceof Error ? err.message : 'Не удалось создать заказ');
+      }
       setBusy(false);
     }
   };

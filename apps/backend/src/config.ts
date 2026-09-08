@@ -17,6 +17,20 @@ function readSecret(name: string, fallback: string): string {
   return fallback;
 }
 
+function readMs(name: string, fallback: number): number {
+  const raw = process.env[name];
+  if (!raw) {
+    return fallback;
+  }
+
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < 0) {
+    return fallback;
+  }
+
+  return value;
+}
+
 export const config = {
   port: Number(process.env.PORT ?? 3000),
   adminToken: readSecret('ADMIN_TOKEN', 'dev-admin-token'),
@@ -26,4 +40,7 @@ export const config = {
   specsDir: path.resolve(moduleDir, '../../../specs'),
   webhookPollMs: 2000,
   supplierTimeoutMs: 5000,
+  /** Hold starts on Купить, not on stub pay. Default 5 minutes. */
+  reservationHoldMs: readMs('RESERVATION_HOLD_MS', 5 * 60 * 1000),
+  reservationSweepMs: readMs('RESERVATION_SWEEP_MS', 15_000),
 };

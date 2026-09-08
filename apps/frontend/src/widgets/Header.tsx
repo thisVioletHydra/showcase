@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { CatalogMegaMenu } from '#/widgets/CatalogMegaMenu';
 import { useCatalog } from '#/features/catalog/useCatalog';
-import { useProducts } from '#/features/order/useProducts';
+import { useCatalogSearch } from '#/features/search/useCatalogSearch';
+import { parseSearchType, readSearchQuery, withPreservedDebug } from '#/features/search/params';
 import { formatPrice, resolveProductImage } from '#/shared/data/home';
-import type { Product } from '#/shared/types';
+import { withDebugQuery } from '#/shared/lib/debugQuery';
 import {
   CatalogGridIcon,
   HeartIcon,
@@ -15,33 +16,60 @@ import {
 
 import styles from './Header.module.css';
 
-function matchProduct(product: Product, query: string): boolean {
-  const q = query.trim().toLowerCase();
-  if (!q) {
-    return false;
-  }
-
-  return (
-    product.name.toLowerCase().includes(q)
-    || product.sku.toLowerCase().includes(q)
-    || product.type.toLowerCase().includes(q)
-  );
-}
+const SEARCH_DEBOUNCE_MS = 200;
 
 export function Header() {
   const catalog = useCatalog();
-  const { products } = useProducts(0);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [params] = useSearchParams();
   const searchRef = useRef<HTMLDivElement>(null);
-
-  const [query, setQuery] = useState('');
+  const urlQ = readSearchQuery(params);
+  const [query, setQuery] = useState(urlQ);
   const [open, setOpen] = useState(false);
 
-  const results = useMemo(
-    () => products.filter((product) => matchProduct(product, query)).slice(0, 8),
-    [products, query],
-  );
-
   const showDropdown = open && query.trim().length > 0;
+  const preview = useCatalogSearch(showDropdown ? query : '', '', 8);
+
+  useEffect(() => {
+    setQuery(urlQ);
+  }, [urlQ]);
+
+  const commitQuery = (raw: string, replace: boolean) => {
+    const trimmed = raw.trim();
+    const next = withPreservedDebug(params);
+    if (location.pathname === '/') {
+      const type = parseSearchType(params.get('type'));
+      if (type) {
+        next.set('type', type);
+      }
+    }
+    if (trimmed) {
+      next.set('q', trimmed);
+    }
+
+    const search = next.toString();
+    setOpen(false);
+    navigate({
+      pathname: '/',
+      search: search ? `?${search}` : '',
+    }, { replace });
+  };
+
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (trimmed === urlQ.trim()) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      commitQuery(query, true);
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [query, urlQ]);
 
   useEffect(() => {
     if (!showDropdown) {
@@ -69,10 +97,16 @@ export function Header() {
     };
   }, [showDropdown]);
 
+  const pickProduct = (name: string) => {
+    setQuery(name);
+    setOpen(false);
+    commitQuery(name, true);
+  };
+
   return (
     <header className={styles.header} ref={catalog.rootRef}>
       <div className={`container ${styles.inner}`}>
-        <Link to="/" className={styles.logo}>GGSEL</Link>
+        <Link to={withDebugQuery('/')} className={styles.logo}>GGSEL</Link>
 
         <div className={styles.toolbar}>
           <button
@@ -97,35 +131,63 @@ export function Header() {
                   setOpen(true);
                 }}
                 onFocus={() => setOpen(true)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    setOpen(false);
+                    commitQuery(query, false);
+                  }
+                  if (event.key === 'Escape') {
+                    event.preventDefault();
+                    setOpen(false);
+                  }
+                }}
               />
               <button type="button" className={styles.heartBtn} aria-label="Избранное">
                 <HeartIcon />
               </button>
             </div>
-            <button type="button" className={styles.searchBtn} aria-label="Поиск">
+            <button
+              type="button"
+              className={styles.searchBtn}
+              aria-label="Поиск"
+              onClick={() => {
+                setOpen(false);
+                commitQuery(query, false);
+              }}
+            >
               <SearchIcon />
             </button>
 
             {showDropdown ? (
               <div className={styles.searchDropdown} role="listbox">
-                {results.length === 0 ? (
+                {preview.loading && preview.products.length === 0 ? (
+                  <p className={styles.searchEmpty}>Ищем…</p>
+                ) : preview.products.length === 0 ? (
                   <p className={styles.searchEmpty}>Ничего не найдено</p>
                 ) : (
                   <ul className={styles.searchList}>
-                    {results.map((product, index) => (
-                      <li key={product.sku} className={styles.searchItem} role="option">
-                        <img
-                          className={styles.searchThumb}
-                          src={resolveProductImage(product.image, product.sku)}
-                          alt=""
-                        />
-                        <span className={styles.searchItemBody}>
-                          <span className={styles.searchItemName}>{product.name}</span>
-                          <span className={styles.searchItemSku}>{product.sku}</span>
-                        </span>
-                        <span className={styles.searchItemPrice}>
-                          {formatPrice(product.price, product.currency)}
-                        </span>
+                    {preview.products.map((product) => (
+                      <li key={product.sku}>
+                        <button
+                          type="button"
+                          className={styles.searchItem}
+                          role="option"
+                          onClick={() => pickProduct(product.name)}
+                        >
+                          <img
+                            className={styles.searchThumb}
+                            src={resolveProductImage(product.image, product.sku)}
+                            alt=""
+                          />
+                          <span className={styles.searchItemBody}>
+                            <span className={styles.searchItemName}>{product.name}</span>
+                            <span className={styles.searchItemSku}>{product.sku}</span>
+                          </span>
+                          <span className={styles.searchItemPrice}>
+                            {formatPrice(product.price, product.currency)}
+                          </span>
+                        </button>
                       </li>
                     ))}
                   </ul>

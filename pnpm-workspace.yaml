@@ -2,6 +2,8 @@ shellEmulator: true
 trustPolicy: no-downgrade
 
 minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  - '@oxyhub/oxlint-plugin'
 
 packages:
   - 'apps/*'

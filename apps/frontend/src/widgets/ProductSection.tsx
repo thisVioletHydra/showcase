@@ -125,7 +125,6 @@ export function ProductSection({
               <ProductCard
                 key={`${title}-${activeFilter}-${product.sku}-${index}`}
                 product={product}
-                index={index}
                 purchasable={isPopular && buyable.has(product.sku)}
               />
             ))}
