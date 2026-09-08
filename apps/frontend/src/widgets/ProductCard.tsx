@@ -11,6 +11,7 @@ import {
   savePendingOrderId,
 } from '#/shared/lib/buyer';
 import { saveLastOrderId } from '#/shared/lib/orderDisplay';
+import { withDebugQuery } from '#/shared/lib/debugQuery';
 import type { CreateOrderResponse, Product } from '#/shared/types';
 
 import styles from './ProductCard.module.css';
@@ -52,7 +53,7 @@ export function ProductCard({ product, purchasable = false }: ProductCardProps) 
       });
       savePendingOrderId(target.sku, result.order_id);
       saveLastOrderId(result.order_id);
-      navigate(`/order?id=${result.order_id}`);
+      navigate(withDebugQuery(`/order?id=${result.order_id}`));
     } catch (err: unknown) {
       if (isSoldOutError(err)) {
         clearPendingOrderId(target.sku);
@@ -78,6 +79,9 @@ export function ProductCard({ product, purchasable = false }: ProductCardProps) 
   const cover = resolveProductImage(product.image, product.sku);
   const title = displayProductName(product.name);
   const oldPrice = strikePrice(product.price);
+  const inStock = product.available > 0;
+  const canBuy = purchasable && inStock;
+  const soldOut = purchasable && inStock === false;
 
   return (
     <article className={styles.card}>
@@ -93,7 +97,10 @@ export function ProductCard({ product, purchasable = false }: ProductCardProps) 
           <span className={styles.price}>{formatPrice(product.price, product.currency)}</span>
           <span className={styles.strike}>{formatPrice(oldPrice, product.currency)}</span>
         </div>
-        {purchasable ? (
+        <p className={styles.stock}>
+          {inStock ? `Осталось ${product.available}` : 'Нет в наличии'}
+        </p>
+        {canBuy ? (
           <button
             type="button"
             className={styles.buyBtn}
@@ -104,7 +111,7 @@ export function ProductCard({ product, purchasable = false }: ProductCardProps) 
           </button>
         ) : (
           <button type="button" className={styles.buyBtnMuted} disabled>
-            Купить
+            {soldOut ? 'Нет в наличии' : 'Купить'}
           </button>
         )}
         {error ? <p className={styles.error}>{error}</p> : null}

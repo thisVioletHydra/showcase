@@ -11,7 +11,7 @@ import {
   getOrderById,
   transitionOrderStatus,
 } from './orders.service';
-import { getProductBySku, listProducts } from './products.service';
+import { getProductBySku, listCatalogProducts } from './products.service';
 import { applyPromocode, calculateDiscountedPrice } from './promocodes.service';
 
 interface ReservationRow {
@@ -36,6 +36,20 @@ export type ClaimOrderResult =
   | { ok: true; order: Order; created: boolean }
   | { ok: false; reason: 'sold_out'; neighbor: Product | null };
 
+let afterInventoryChange: (() => void) | null = null;
+
+export function onInventoryChange(listener: () => void): void {
+  afterInventoryChange = listener;
+}
+
+function emitInventoryChange(): void {
+  if (getDb().inTransaction) {
+    return;
+  }
+
+  afterInventoryChange?.();
+}
+
 function nowIso(): string {
   return new Date().toISOString();
 }
@@ -45,7 +59,7 @@ function holdUntilIso(): string {
 }
 
 export function findNeighborProduct(sku: string): Product | null {
-  const products = listProducts();
+  const products = listCatalogProducts();
   if (products.length === 0) {
     return null;
   }
@@ -102,6 +116,10 @@ export function expireStaleReservations(db: Database.Database = getDb()): number
 
     if (startedHere) {
       db.prepare('COMMIT').run();
+    }
+
+    if (startedHere && stale.length > 0) {
+      emitInventoryChange();
     }
 
     return stale.length;
@@ -191,6 +209,8 @@ export function releaseHold(
     transitionOrderStatus(orderId, 'created', 'expired', db);
     clearOrderHold(orderId, db);
   }
+
+  emitInventoryChange();
 }
 
 export function captureHold(orderId: string, db: Database.Database = getDb()): boolean {
@@ -265,6 +285,7 @@ export function claimOrder(input: ClaimOrderInput): ClaimOrderResult {
     const hinted = reuseOrder(db, input);
     if (hinted) {
       db.prepare('COMMIT').run();
+      emitInventoryChange();
       return { ok: true, order: hinted, created: false };
     }
 
@@ -273,6 +294,7 @@ export function claimOrder(input: ClaimOrderInput): ClaimOrderResult {
       const current = getOrderById(active.order_id, db);
       if (current && current.status === 'created') {
         db.prepare('COMMIT').run();
+        emitInventoryChange();
         return { ok: true, order: current, created: false };
       }
 
@@ -287,6 +309,7 @@ export function claimOrder(input: ClaimOrderInput): ClaimOrderResult {
     const unitId = claimAvailableUnit(db, input.sku, orderId);
     if (unitId === null) {
       db.prepare('COMMIT').run();
+      emitInventoryChange();
       return { ok: false, reason: 'sold_out', neighbor: findNeighborProduct(input.sku) };
     }
 
@@ -319,7 +342,92 @@ export function claimOrder(input: ClaimOrderInput): ClaimOrderResult {
     `).run(orderId, input.sku, unitId, input.buyerId, heldUntil, now, now);
 
     db.prepare('COMMIT').run();
+    emitInventoryChange();
     return { ok: true, order, created: true };
+  } catch (error) {
+    if (db.inTransaction) {
+      db.prepare('ROLLBACK').run();
+    }
+    throw error;
+  }
+}
+
+export function countAvailableUnits(sku: string, db: Database.Database = getDb()): number {
+  const row = db.prepare(`
+    SELECT COUNT(*) AS count
+    FROM inventory_units
+    WHERE sku = ? AND status = 'available'
+  `).get(sku) as { count: number };
+
+  return row.count;
+}
+
+export function setAvailableCount(sku: string, target: number): number {
+  if (!Number.isInteger(target) || target < 0) {
+    throw new Error('available must be a non-negative integer');
+  }
+
+  const db = getDb();
+  db.prepare('BEGIN IMMEDIATE').run();
+
+  try {
+    expireStaleReservations(db);
+    const now = nowIso();
+    let current = countAvailableUnits(sku, db);
+
+    if (current > target) {
+      const extra = current - target;
+      db.prepare(`
+        DELETE FROM inventory_units
+        WHERE id IN (
+          SELECT id
+          FROM inventory_units
+          WHERE sku = ? AND status = 'available'
+          LIMIT ?
+        )
+      `).run(sku, extra);
+    } else if (current < target) {
+      const insert = db.prepare(`
+        INSERT INTO inventory_units (sku, status, created_at, updated_at)
+        VALUES (?, 'available', ?, ?)
+      `);
+      const missing = target - current;
+      for (let i = 0; i < missing; i += 1) {
+        insert.run(sku, now, now);
+      }
+    }
+
+    current = countAvailableUnits(sku, db);
+    db.prepare('COMMIT').run();
+    emitInventoryChange();
+    return current;
+  } catch (error) {
+    if (db.inTransaction) {
+      db.prepare('ROLLBACK').run();
+    }
+    throw error;
+  }
+}
+
+export function resetHoldsForSku(sku: string): number {
+  const db = getDb();
+  db.prepare('BEGIN IMMEDIATE').run();
+
+  try {
+    expireStaleReservations(db);
+    const held = db.prepare(`
+      SELECT order_id
+      FROM reservations
+      WHERE sku = ? AND status = 'held'
+    `).all(sku) as Array<{ order_id: string }>;
+
+    for (const row of held) {
+      releaseHold(row.order_id, 'expired', db);
+    }
+
+    db.prepare('COMMIT').run();
+    emitInventoryChange();
+    return held.length;
   } catch (error) {
     if (db.inTransaction) {
       db.prepare('ROLLBACK').run();

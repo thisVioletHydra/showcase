@@ -39,3 +39,24 @@ export function clearPendingOrderId(sku: string): void {
     // quota / private mode
   }
 }
+
+export function rotateBuyerId(): string {
+  const created = `buy_${crypto.randomUUID().replaceAll('-', '')}`;
+  try {
+    sessionStorage.setItem(BUYER_KEY, created);
+    const keys: string[] = [];
+    for (let i = 0; i < sessionStorage.length; i += 1) {
+      const key = sessionStorage.key(i);
+      if (key && key.startsWith(PENDING_PREFIX)) {
+        keys.push(key);
+      }
+    }
+    for (const key of keys) {
+      sessionStorage.removeItem(key);
+    }
+  } catch {
+    // quota / private mode
+  }
+
+  return created;
+}

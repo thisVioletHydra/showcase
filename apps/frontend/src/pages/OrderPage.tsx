@@ -23,9 +23,74 @@ function sameOrder(a: Order, b: Order): boolean {
     && a.amount === b.amount
     && a.currency === b.currency
     && a.key_code === b.key_code
-    &&     a.promocode === b.promocode
+    && a.promocode === b.promocode
     && a.updated_at === b.updated_at
     && a.held_until === b.held_until
+  );
+}
+
+function remainingMs(heldUntil: string): number {
+  return Math.max(0, new Date(heldUntil).getTime() - Date.now());
+}
+
+function formatHoldClock(ms: number): string {
+  const total = Math.ceil(ms / 1000);
+  const minutes = Math.floor(total / 60);
+  const seconds = total % 60;
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function HoldTimer({
+  heldUntil,
+  createdAt,
+  onExpire,
+}: {
+  heldUntil: string;
+  createdAt: string;
+  onExpire: () => void;
+}) {
+  const [left, setLeft] = useState(() => remainingMs(heldUntil));
+  const expiredRef = useRef(false);
+  const expireFn = useRef(onExpire);
+  expireFn.current = onExpire;
+
+  useEffect(() => {
+    expiredRef.current = false;
+    const tick = () => {
+      const next = remainingMs(heldUntil);
+      setLeft(next);
+      if (next <= 0 && expiredRef.current === false) {
+        expiredRef.current = true;
+        expireFn.current();
+      }
+    };
+
+    tick();
+    const timer = window.setInterval(tick, 250);
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [heldUntil]);
+
+  const span = Math.max(1, new Date(heldUntil).getTime() - new Date(createdAt).getTime());
+  const ratio = Math.min(1, left / span);
+
+  if (left <= 0) {
+    return (
+      <div className={styles.holdTimer}>
+        <p className={styles.holdLabel}>Резерв снят</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.holdTimer} role="timer" aria-live="polite">
+      <p className={styles.holdLabel}>Резерв 5 минут</p>
+      <p className={styles.holdValue}>{formatHoldClock(left)}</p>
+      <div className={styles.holdBar} aria-hidden>
+        <span style={{ width: `${Math.round(ratio * 1000) / 10}%` }} />
+      </div>
+    </div>
   );
 }
 
@@ -77,9 +142,10 @@ export function OrderPage() {
   const hasDiscount = Boolean(
     order
     && order.promocode
-    && basePrice != null
+    && typeof basePrice === 'number'
     && order.amount < basePrice,
   );
+  const showHold = Boolean(order?.status === 'created' && order.held_until);
 
   const amountLabel = meta?.mood === 'success'
     ? 'Оплачено'
@@ -91,6 +157,20 @@ export function OrderPage() {
 
   const applyOrder = (next: Order) => {
     setOrder((prev) => (prev && sameOrder(prev, next) ? prev : next));
+  };
+
+  const reloadOrder = () => {
+    if (!orderId) {
+      return;
+    }
+
+    void apiFetch<OrderResponse>(`/api/orders/${orderId}`)
+      .then((data) => {
+        applyOrder(data.order);
+      })
+      .catch(() => {
+        // keep current order
+      });
   };
 
   useEffect(() => {
@@ -327,6 +407,14 @@ export function OrderPage() {
 
               <p className={styles.hint}>{meta.hint}</p>
 
+              {showHold && order.held_until ? (
+                <HoldTimer
+                  heldUntil={order.held_until}
+                  createdAt={order.created_at}
+                  onExpire={reloadOrder}
+                />
+              ) : null}
+
               <div className={styles.productRow}>
                 {productCover ? (
                   <img
@@ -344,9 +432,14 @@ export function OrderPage() {
               </div>
 
               <div className={styles.amountBlock}>
+                {typeof basePrice === 'number' ? (
+                  <p className={styles.livePrice}>
+                    Цена сейчас {formatPrice(basePrice, order.currency)}
+                  </p>
+                ) : null}
                 <p className={styles.amountLabel}>{amountLabel}</p>
                 <div className={styles.amountRow}>
-                  {hasDiscount && basePrice != null ? (
+                  {hasDiscount && typeof basePrice === 'number' ? (
                     <span className={styles.amountWas}>
                       {formatPrice(basePrice, order.currency)}
                     </span>

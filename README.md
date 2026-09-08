@@ -13,6 +13,8 @@ pnpm front   # http://127.0.0.1:5173 (proxies /api and /webhook)
 
 Buy flow: card **Купить** claims a warehouse unit (5 min unpaid hold) → `/order?id=` → simulate pay → key from pool. Repeat click / Back / refresh reuse the same order id. Last unit is a race: the loser gets sold-out + a neighboring catalog product, not an empty paid order.
 
+Live catalog: `GET /api/catalog/stream` (SSE, in-process). Price and remaining stock update in every open tab; reconnect replays the same snapshot. `?debug=1` has stock/price/hold/second-buyer controls.
+
 Admin: `/admin` with `Authorization: Bearer dev-admin-token` (or `ADMIN_TOKEN`).
 
 ## Architecture (frontend, light FSD)

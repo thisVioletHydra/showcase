@@ -29,6 +29,12 @@ export interface Product {
   price: number;
   currency: string;
   image: string;
+  available?: number;
+}
+
+export interface CatalogSnapshot {
+  at: string;
+  products: Array<Product & { available: number }>;
 }
 
 export interface Order {

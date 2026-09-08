@@ -12,7 +12,8 @@ import {
 } from '#http/router';
 import { createAppRouter } from '#routes/index';
 import { processPendingWebhooks } from '#services/webhook.service';
-import { expireStaleReservations } from '#services/inventory.service';
+import { expireStaleReservations, onInventoryChange } from '#services/inventory.service';
+import { publishCatalog, stopCatalogStream } from '#services/live.service';
 
 function applyCors(res: http.ServerResponse, origin: string | undefined): void {
   const allowed = config.corsOrigin === '*'
@@ -78,6 +79,7 @@ const server = http.createServer(async (req, res) => {
 
 const db = getDb();
 seedDatabase(db);
+onInventoryChange(publishCatalog);
 expireStaleReservations();
 
 const inboxTimer = setInterval(() => {
@@ -103,6 +105,7 @@ server.listen(config.port, () => {
 process.on('SIGINT', () => {
   clearInterval(inboxTimer);
   clearInterval(holdTimer);
+  stopCatalogStream();
   server.close();
   closeDb();
   process.exit(0);
@@ -111,6 +114,7 @@ process.on('SIGINT', () => {
 process.on('SIGTERM', () => {
   clearInterval(inboxTimer);
   clearInterval(holdTimer);
+  stopCatalogStream();
   server.close();
   closeDb();
   process.exit(0);

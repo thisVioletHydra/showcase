@@ -17,6 +17,7 @@ export interface Product {
   price: number;
   currency: string;
   image: string;
+  available: number;
 }
 
 export interface Order {
@@ -45,6 +46,11 @@ export interface SoldOutPayload {
   code: 'sold_out';
   error: string;
   neighbor: Product | null;
+}
+
+export interface CatalogSnapshot {
+  at: string;
+  products: Product[];
 }
 
 export type CurrencyCode = 'USD' | 'KZT' | 'RUB';

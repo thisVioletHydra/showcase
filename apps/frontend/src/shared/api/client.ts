@@ -48,6 +48,10 @@ export async function apiFetch<T>(
   return response.json() as Promise<T>;
 }
 
+export function catalogStreamUrl(): string {
+  return `${API_BASE}/api/catalog/stream`;
+}
+
 export function getAdminToken(): string {
   return import.meta.env.VITE_ADMIN_TOKEN ?? 'dev-admin-token';
 }

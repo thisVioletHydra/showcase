@@ -12,6 +12,7 @@ import {
   savePendingOrderId,
 } from '#/shared/lib/buyer';
 import { saveLastOrderId, saveOrderDisplay } from '#/shared/lib/orderDisplay';
+import { withDebugQuery } from '#/shared/lib/debugQuery';
 import type { CreateOrderResponse } from '#/shared/types';
 
 import styles from './ServicesSteamCard.module.css';
@@ -149,7 +150,7 @@ export function ServicesSteamCard() {
       });
       saveLastOrderId(result.order_id);
 
-      navigate(`/order?id=${result.order_id}`);
+      navigate(withDebugQuery(`/order?id=${result.order_id}`));
     } catch (err: unknown) {
       if (isSoldOutError(err)) {
         clearPendingOrderId(TOPUP_SKU);
