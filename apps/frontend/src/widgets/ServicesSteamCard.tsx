@@ -3,9 +3,15 @@ import { useNavigate } from 'react-router-dom';
 
 import { SERVICE_ITEMS } from '#/shared/data/home';
 import { useCurrency } from '#/features/currency/useCurrency';
-import { apiFetch } from '#/shared/api/client';
-import { saveLastOrderId, saveOrderDisplay } from '#/shared/lib/orderDisplay';
+import { apiFetch, isSoldOutError, soldOutNeighbor } from '#/shared/api/client';
 import { assetUrl } from '#/shared/lib/assetUrl';
+import {
+  clearPendingOrderId,
+  getBuyerId,
+  loadPendingOrderId,
+  savePendingOrderId,
+} from '#/shared/lib/buyer';
+import { saveLastOrderId, saveOrderDisplay } from '#/shared/lib/orderDisplay';
 import type { CreateOrderResponse } from '#/shared/types';
 
 import styles from './ServicesSteamCard.module.css';
@@ -108,11 +114,24 @@ export function ServicesSteamCard() {
     setError(null);
 
     try {
-      const body: { sku: string; amount: number; currency: string; promocode?: string } = {
+      const pendingId = loadPendingOrderId(TOPUP_SKU);
+      const body: {
+        sku: string;
+        amount: number;
+        currency: string;
+        buyer_id: string;
+        order_id?: string;
+        promocode?: string;
+      } = {
         sku: TOPUP_SKU,
         amount: amountValue,
         currency,
+        buyer_id: getBuyerId(),
       };
+
+      if (pendingId) {
+        body.order_id = pendingId;
+      }
 
       if (promo.trim()) {
         body.promocode = promo.trim();
@@ -123,6 +142,7 @@ export function ServicesSteamCard() {
         body: JSON.stringify(body),
       });
 
+      savePendingOrderId(TOPUP_SKU, result.order_id);
       saveOrderDisplay(result.order_id, {
         label: selected.label,
         icon: selected.icon ?? assetUrl('assets/webp/services/steam.webp'),
@@ -131,7 +151,14 @@ export function ServicesSteamCard() {
 
       navigate(`/order?id=${result.order_id}`);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Не удалось создать заказ');
+      if (isSoldOutError(err)) {
+        clearPendingOrderId(TOPUP_SKU);
+        const neighbor = soldOutNeighbor(err);
+        const hint = neighbor ? ` Рядом: ${neighbor.name}` : '';
+        setError(`${err instanceof Error ? err.message : 'Товар закончился'}.${hint}`);
+      } else {
+        setError(err instanceof Error ? err.message : 'Не удалось создать заказ');
+      }
       setBusy(false);
     }
   };

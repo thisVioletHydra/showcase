@@ -1,4 +1,4 @@
-import { simulatePayment } from '../services/payments.service';
+import { PaymentRejectedError, simulatePayment } from '../services/payments.service';
 import { sendError, sendJson } from '../http/router';
 import type { ApiRequest } from '../http/router';
 import type { SimulatePaymentBody } from '../types';
@@ -15,7 +15,12 @@ export async function postSimulatePayment(req: ApiRequest, res: ServerResponse):
   try {
     const result = await simulatePayment(body.order_id, body.success);
     sendJson(res, 200, result);
-  } catch {
+  } catch (error) {
+    if (error instanceof PaymentRejectedError) {
+      sendError(res, 409, error.message);
+      return;
+    }
+
     sendError(res, 404, 'Order not found');
   }
 }

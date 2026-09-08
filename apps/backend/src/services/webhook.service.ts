@@ -1,5 +1,6 @@
 import { getDb } from '../db';
 import { processPaidOrder } from './fulfillment.service';
+import { captureHold, expireStaleReservations, releaseHold } from './inventory.service';
 import { getOrderById, transitionOrderStatus } from './orders.service';
 import type { PaymentWebhookPayload } from '../types';
 
@@ -39,6 +40,7 @@ export function markInboxProcessed(eventId: string): void {
  */
 export function processPaymentWebhook(payload: PaymentWebhookPayload): void {
   storeWebhookInbox(payload);
+  expireStaleReservations();
 
   const order = getOrderById(payload.order_id);
   if (!order) {
@@ -79,7 +81,10 @@ function applyPaymentToOrder(payload: PaymentWebhookPayload): void {
   }
 
   if (payload.status === 'failed') {
-    transitionOrderStatus(payload.order_id, 'created', 'payment_failed');
+    const moved = transitionOrderStatus(payload.order_id, 'created', 'payment_failed');
+    if (moved) {
+      releaseHold(payload.order_id, null);
+    }
     return;
   }
 
@@ -90,6 +95,10 @@ function applyPaymentToOrder(payload: PaymentWebhookPayload): void {
   const moved = transitionOrderStatus(payload.order_id, 'created', 'paid');
   if (!moved && order.status !== 'paid' && order.status !== 'delivering' && order.status !== 'delivered') {
     return;
+  }
+
+  if (moved) {
+    captureHold(payload.order_id);
   }
 
   processPaidOrder(payload.order_id);

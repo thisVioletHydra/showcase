@@ -11,7 +11,7 @@ pnpm back    # http://127.0.0.1:3000
 pnpm front   # http://127.0.0.1:5173 (proxies /api and /webhook)
 ```
 
-Buy flow: card **Купить** → `/order?id=` → simulate pay → key from pool.
+Buy flow: card **Купить** claims a warehouse unit (5 min unpaid hold) → `/order?id=` → simulate pay → key from pool. Repeat click / Back / refresh reuse the same order id. Last unit is a race: the loser gets sold-out + a neighboring catalog product, not an empty paid order.
 
 Admin: `/admin` with `Authorization: Bearer dev-admin-token` (or `ADMIN_TOKEN`).
 

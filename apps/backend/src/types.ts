@@ -5,7 +5,12 @@ export type OrderStatus =
   | 'delivered'
   | 'payment_failed'
   | 'out_of_stock'
-  | 'delivery_failed';
+  | 'delivery_failed'
+  | 'expired';
+
+export type InventoryUnitStatus = 'available' | 'held' | 'sold';
+
+export type ReservationStatus = 'held' | 'captured' | 'released';
 
 export type KeyStatus = 'available' | 'issued';
 
@@ -36,6 +41,7 @@ export interface Order {
   promocode: string | null;
   created_at: string;
   updated_at: string;
+  held_until: string | null;
 }
 
 export interface OrderRow {
@@ -48,6 +54,7 @@ export interface OrderRow {
   promocode: string | null;
   created_at: string;
   updated_at: string;
+  held_until: string | null;
 }
 
 export interface PaymentWebhookPayload {
@@ -98,6 +105,9 @@ export interface CreateOrderBody {
   promocode?: string;
   /** Override product price (topup only). Billing currency is always catalog RUB. */
   amount?: number;
+  buyer_id?: string;
+  /** Reuse an unpaid hold after Back / refresh / repeat click. */
+  order_id?: string;
 }
 
 export interface SimulatePaymentBody {

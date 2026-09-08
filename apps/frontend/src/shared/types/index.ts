@@ -7,7 +7,8 @@ export type OrderStatus =
   | 'delivered'
   | 'payment_failed'
   | 'out_of_stock'
-  | 'delivery_failed';
+  | 'delivery_failed'
+  | 'expired';
 
 export interface Product {
   sku: string;
@@ -28,6 +29,7 @@ export interface Order {
   promocode: string | null;
   created_at: string;
   updated_at: string;
+  held_until: string | null;
 }
 
 export interface CreateOrderResponse {
@@ -36,6 +38,13 @@ export interface CreateOrderResponse {
   amount: number;
   currency: string;
   promocode: string | null;
+  held_until: string | null;
+}
+
+export interface SoldOutPayload {
+  code: 'sold_out';
+  error: string;
+  neighbor: Product | null;
 }
 
 export type CurrencyCode = 'USD' | 'KZT' | 'RUB';

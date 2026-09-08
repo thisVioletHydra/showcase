@@ -23,8 +23,9 @@ function sameOrder(a: Order, b: Order): boolean {
     && a.amount === b.amount
     && a.currency === b.currency
     && a.key_code === b.key_code
-    && a.promocode === b.promocode
+    &&     a.promocode === b.promocode
     && a.updated_at === b.updated_at
+    && a.held_until === b.held_until
   );
 }
 

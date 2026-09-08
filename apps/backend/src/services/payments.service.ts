@@ -1,17 +1,30 @@
 import { getOrderById } from './orders.service';
+import { expireStaleReservations } from './inventory.service';
 import {
   generateEventId,
   processPaymentWebhook,
 } from './webhook.service';
 import type { PaymentWebhookPayload } from '../types';
 
+export class PaymentRejectedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'PaymentRejectedError';
+  }
+}
+
 export function simulatePayment(orderId: string, success: boolean): {
   event_id: string;
   webhook_status: number;
 } {
+  expireStaleReservations();
   const order = getOrderById(orderId);
   if (!order) {
     throw new Error('Order not found');
+  }
+
+  if (order.status === 'expired') {
+    throw new PaymentRejectedError('Hold expired');
   }
 
   const payload: PaymentWebhookPayload = {
