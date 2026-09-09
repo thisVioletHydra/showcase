@@ -66,16 +66,24 @@ export function isSoldOutError(error: unknown): error is ApiError & { payload: S
     return false;
   }
 
-  return error.payload.code === 'sold_out';
+  if (error.payload.code === 'sold_out') {
+    return true;
+  }
+
+  return error.status === 409 && error.message === 'Товар закончился';
 }
 
 export function soldOutNeighbor(error: unknown): Product | null {
-  if (!isSoldOutError(error)) {
+  if (!isSoldOutError(error) || error.payload === null) {
     return null;
   }
 
   const neighbor = error.payload.neighbor;
-  if (neighbor === null || typeof neighbor.sku !== 'string' || typeof neighbor.name !== 'string') {
+  if (neighbor === null || typeof neighbor !== 'object') {
+    return null;
+  }
+
+  if (typeof neighbor.sku !== 'string' || typeof neighbor.name !== 'string') {
     return null;
   }
 

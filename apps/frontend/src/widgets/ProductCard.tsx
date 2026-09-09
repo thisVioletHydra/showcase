@@ -22,7 +22,7 @@ export function ProductCard({ product, purchasable = false }: ProductCardProps) 
   const [error, setError] = useState<string | null>(null);
   const [neighbor, setNeighbor] = useState<Product | null>(null);
 
-  const claimProduct = async (target: Product) => {
+  const onBuy = async () => {
     if (!purchasable || busy) {
       return;
     }
@@ -32,27 +32,17 @@ export function ProductCard({ product, purchasable = false }: ProductCardProps) 
     setNeighbor(null);
 
     try {
-      const result = await claimProductOrder({ sku: target.sku });
+      const result = await claimProductOrder({ sku: product.sku });
       navigate(withDebugQuery(`/order?id=${result.order_id}`));
     } catch (err: unknown) {
       if (isSoldOutError(err)) {
-        clearPendingOrderId(target.sku);
+        clearPendingOrderId(product.sku);
         setNeighbor(soldOutNeighbor(err));
         setError(err instanceof Error ? err.message : 'Товар закончился');
       } else {
         setError(err instanceof Error ? err.message : 'Order failed');
       }
       setBusy(false);
-    }
-  };
-
-  const onBuy = () => {
-    void claimProduct(product);
-  };
-
-  const onBuyNeighbor = () => {
-    if (neighbor) {
-      void claimProduct(neighbor);
     }
   };
 
@@ -85,7 +75,7 @@ export function ProductCard({ product, purchasable = false }: ProductCardProps) 
             type="button"
             className={styles.buyBtn}
             disabled={busy}
-            onClick={onBuy}
+            onClick={() => void onBuy()}
           >
             {busy ? '…' : 'Купить'}
           </button>
@@ -98,14 +88,9 @@ export function ProductCard({ product, purchasable = false }: ProductCardProps) 
         {neighbor ? (
           <div className={styles.neighbor}>
             <p className={styles.neighborLabel}>Рядом в каталоге</p>
-            <button
-              type="button"
-              className={styles.neighborBtn}
-              disabled={busy}
-              onClick={onBuyNeighbor}
-            >
+            <p className={styles.neighborHint}>
               {displayProductName(neighbor.name)} — {formatPrice(neighbor.price, neighbor.currency)}
-            </button>
+            </p>
           </div>
         ) : null}
       </div>
